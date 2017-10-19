@@ -44,7 +44,6 @@ void rx_ok_cb(const dwt_cb_data_t *cb_data)
 	uint16 frame_len;
 	uint8 rtxtimes=0;
 	frame_len=cb_data->datalength;
-
 	#ifdef MAIN_ANCHOR
 	if (frame_len <= RX_BUF_LEN)
 	{
@@ -68,7 +67,7 @@ void rx_ok_cb(const dwt_cb_data_t *cb_data)
 			if(TOARanging)//处于toa定位流程中的时候不适合使用队列
 			{
 				dwt_readrxdata(Que[front].buff, frame_len, 0);
-				Que[front].rx_timestamp=get_rx_timestamp_u64();
+//				Que[front].rx_timestamp=get_rx_timestamp_u64();
 			}
 			else
 			{
@@ -82,14 +81,15 @@ void rx_ok_cb(const dwt_cb_data_t *cb_data)
 					rear=(rear+1)%Que_Length;
 					Qcnt++;
 				}
+				isframe_rec=0;
+				dwt_rxenable(DWT_START_RX_IMMEDIATE);
 			}
-			isframe_rec=0;
+			
 		}
 
 		
 	}
 
-	dwt_rxenable(DWT_START_RX_IMMEDIATE);
 	
 
 	#else
@@ -114,7 +114,7 @@ void rx_ok_cb(const dwt_cb_data_t *cb_data)
 			if(TOARanging)//处于toa定位流程中的时候不适合使用队列
 			{
 				dwt_readrxdata(Que[front].buff, frame_len, 0);
-				Que[front].rx_timestamp=get_rx_timestamp_u64();
+				//Que[front].rx_timestamp=get_rx_timestamp_u64();
 			}
 			else
 			{
@@ -129,15 +129,16 @@ void rx_ok_cb(const dwt_cb_data_t *cb_data)
 					rear=(rear+1)%Que_Length;
 					Qcnt++;
 				}
-				
+				isframe_rec=0;
+				dwt_rxenable(DWT_START_RX_IMMEDIATE);
 			}
 			
-			isframe_rec=0;
+			
 		}
 
 		
 	}
-	dwt_rxenable(DWT_START_RX_IMMEDIATE);
+	
 
 	#endif	
 

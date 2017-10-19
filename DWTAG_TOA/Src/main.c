@@ -292,14 +292,15 @@ int main(void)
 		cnt_toa++;
 		if(cnt_toa<10)
 		{
-			for(i=0;i<QUANTITY_ANCHOR;i++)
-			{
-				if(twoway_ranging(0x01,&dis[i]))dis[0]=0;
-			}
-			send2MainAnch(dis,QUANTITY_ANCHOR);
-			printf("sent data\r\n");
+//			for(i=0;i<QUANTITY_ANCHOR;i++)
+//			{
+//				if(twoway_ranging(0x01,&dis[i]))dis[0]=0;
+//			}
+//			send2MainAnch(dis,QUANTITY_ANCHOR);
+//			printf("sent data\r\n");
+			twoway_ranging(0x01,&dis[0]);
 			//Sleep
-			//dwt_entersleep();
+			dwt_entersleep();
 		}
 		else
 		{
@@ -316,11 +317,12 @@ int main(void)
 		while(!tim14_int);
 		tim14_int=0;//tim14 发生中断
 
-//		HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_SET);//wake up
-//		Delay_us(500);
-//		HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_RESET);
-//		Delay_ms(3);
-		
+		HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_SET);//wake up
+		Delay_us(500);
+		HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_RESET);
+		Delay_ms(3);
+		dwt_setrxantennadelay(RX_ANT_DLY);
+		dwt_settxantennadelay(TX_ANT_DLY);
   /* USER CODE BEGIN 3 */
 	
   }while(1);
@@ -682,7 +684,7 @@ void POLL_TimeWindow(void)
 	}
 	printf("ACtime=%lx\r\n",ACtime);
 	dwt_setrxtimeout(0);
-
+	
 }
 /*
 
@@ -699,48 +701,44 @@ int twoway_ranging(uint16 base_addr,float *distance)//單次測距函數
 	int ret;
 	double tof_dtu;
 	double tof;
-	uint8 tx_TOAbuff[12]={0x41, 0x88, 0, 0xCA, 0xDE, 0x00, 0x00, (uint8)Tag_ID, (uint8)(Tag_ID>>8), 0x10};//TOA定位所使用的buff
-	
-	HAULT_POINT
+	__align(4) uint8 tx_TOAbuff[12]={0x41, 0x88, 0, 0xCA, 0xDE, 0x00, 0x00, (uint8)Tag_ID, (uint8)(Tag_ID>>8), 0x10};//TOA定位所使用的buff
+
 	tx_TOAbuff[DESTADD]=(uint8)base_addr;
 	tx_TOAbuff[DESTADD+1]=(uint8)(base_addr>>8);
-	tx_TOAbuff[0]=0x61;//请求应答
-	dwt_setrxtimeout(1000);//设置接受超时
+	tx_TOAbuff[0]=0x41;//请求应答
 	dwt_writetxdata(12, tx_TOAbuff, 0);//发起定位请求
 	dwt_writetxfctrl(12, 0, 0);
-	SET_Tpoint();//SET POINT
+//	dwt_setrxtimeout(800);//设置接受超时
+//	do
+//	{
+
+//		ret=dwt_starttx(DWT_START_TX_IMMEDIATE|DWT_RESPONSE_EXPECTED);
+//		if(ret == DWT_ERROR)
+//		{
+//			*distance=0;
+//			return -2;	
+//		}
+//		while(!isframe_sent);
+//		isframe_sent=0;
+//		while(!isreceive_To&&!istxframe_acked);
+//		if(isreceive_To==1)
+//		{
+//			printf("W4ACk TO\r\n");
+//			isreceive_To=0;
+//			TimeOutCNT++;
+//		}
+//		if(TimeOutCNT==3)
+//		{
+//			*distance=0;
+//			goto error1;			
+//		}
+//	}while(istxframe_acked!=1);
+//	istxframe_acked=0;
+	TimeOutCNT=0;
+	dwt_setrxtimeout(4500);//设置接受超时
 	do
 	{
 		ret=dwt_starttx(DWT_START_TX_IMMEDIATE|DWT_RESPONSE_EXPECTED);
-		if(ret == DWT_ERROR)
-		{
-			*distance=0;
-			return -2;	
-		}
-		while(!isframe_sent);
-		isframe_sent=0;	
-		while(!isreceive_To&&!istxframe_acked);
-		if(isreceive_To==1)
-		{
-			printf("W4ACk TO\r\n");
-			isreceive_To=0;
-			TimeOutCNT++;
-		}
-		if(TimeOutCNT==5)
-		{
-			*distance=0;
-			goto error1;			
-		}
-	}while(istxframe_acked!=1);
-	istxframe_acked=0;
-	TimeOutCNT=0;
-	GET_Time2Tpoint();
-	
-	dwt_setrxtimeout(10000);//设置接受超时
-	SET_Tpoint();//SET POINT
-	do
-	{
-		dwt_rxenable(DWT_START_RX_IMMEDIATE);
 		while(!isreceive_To&&!isframe_rec);
 		if(isreceive_To==1)
 		{
@@ -753,21 +751,18 @@ int twoway_ranging(uint16 base_addr,float *distance)//單次測距函數
 			*distance=0;
 			goto error1;			
 		}
-	}while(isframe_rec);
+	}while(!isframe_rec);
 	isframe_rec=0;//接受到第一次数据
-	GET_Time2Tpoint();
-	SET_Tpoint();//SET POINT
+	TimeOutCNT=0;	
 	poll_rx_ts = get_rx_timestamp_u64();
 	delayed_resp_time = (poll_rx_ts + (RESP_TX_DELAYED_UUS * UUS_TO_DWT_TIME)) >> 8;
   dwt_setdelayedtrxtime(delayed_resp_time);
-	
 	tx_TOAbuff[0]=0x41;//不需要應答
 	tx_TOAbuff[FUNCODE_IDX]=0x12;
-	dwt_setrxaftertxdelay(0);//here some value can be set to reduce power consumption
-	dwt_setrxtimeout(1000);	
+//	dwt_setrxaftertxdelay(1);//here some value can be set to reduce power consumption
+	dwt_setrxtimeout(4500);	
 	dwt_writetxdata(12, tx_TOAbuff, 0);//
 	dwt_writetxfctrl(12, 0, 1);	
-	GET_Time2Tpoint();
 	
 	ret = dwt_starttx(DWT_START_TX_DELAYED | DWT_RESPONSE_EXPECTED);
 	if(ret == DWT_ERROR)
@@ -786,10 +781,10 @@ int twoway_ranging(uint16 base_addr,float *distance)//單次測距函數
 			goto error1;
 	}
 	isframe_rec=0;
+	dwt_setrxaftertxdelay(0);
 	resp_tx_ts = get_tx_timestamp_u64();
 	final_rx_ts = get_rx_timestamp_u64();
 	
-	time_stack[timestack_cnt++]=resp_tx_ts-final_rx_ts;//SET POINT
 	final_msg_get_ts(&rx_buffer[FINAL_MSG_POLL_TX_TS_IDX], &poll_tx_ts);
 	final_msg_get_ts(&rx_buffer[FINAL_MSG_RESP_RX_TS_IDX], &resp_rx_ts);
 	final_msg_get_ts(&rx_buffer[FINAL_MSG_FINAL_TX_TS_IDX], &final_tx_ts);
@@ -800,19 +795,18 @@ int twoway_ranging(uint16 base_addr,float *distance)//單次測距函數
 	Db = (double)(resp_tx_ts - poll_rx_ts);
 	tof_dtu = (Ra * Rb - Da * Db) / (Ra + Rb + Da + Db);
 	tof = tof_dtu * DWT_TIME_UNITS;
-  *distance = (float)tof * SPEED_OF_LIGHT;
-	while(timestack_cnt)
-	{
-		double tmp=(double)time_stack[timestack_cnt-1]*4/1000;
-		printf("%d:%f us \r\n",timestack_cnt--,tmp);
-	}
-	HAULT_POINT
+  *distance = RANGE_BIAS+(float)tof * SPEED_OF_LIGHT;
+	printf("%3.2f\r\n",*distance);
 	return 0;
 error1:
-	HAULT_POINT
+	printf("error1\r\n");
+	dwt_setrxaftertxdelay(0);
+	dwt_setrxtimeout(0);
 	return -1;
 error2:
-	HAULT_POINT
+	printf("error2\r\n");
+	dwt_setrxaftertxdelay(0);
+	dwt_setrxtimeout(0);
 	return -2;
 }
 

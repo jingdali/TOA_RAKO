@@ -30,7 +30,8 @@ struct _m_usmart_nametab usmart_nametab[]=
 	(void*)testfun2,"void testfun2(void)",
 	(void*)getloctime,"void getloctime(void)",
 	(void*)DMA_test,"void DMA_test(void)",
-	(void*)going,"void going(void)",											
+	(void*)going,"void going(void)",
+	(void*)ShowTimeStack,"void ShowTimeStack(void)",
 };						  
 ///////////////////////////////////END///////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

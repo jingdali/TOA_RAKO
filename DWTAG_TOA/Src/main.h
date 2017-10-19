@@ -44,13 +44,14 @@
 /*
 	一些用於TOA定位的宏
 */
-#define RESP_TX_DELAYED_UUS 3000
+#define RESP_TX_DELAYED_UUS 2000
+#define RESP_TX_DELAYED_MS 30
 #define UUS_TO_DWT_TIME 65536
 #define FINAL_MSG_POLL_TX_TS_IDX 10
 #define FINAL_MSG_RESP_RX_TS_IDX 15
 #define FINAL_MSG_FINAL_TX_TS_IDX 20
 #define SPEED_OF_LIGHT 299702547
-
+#define RANGE_BIAS 0.57
 //#define FLASHPROTECT
 //#define MAXRDPLEVEL
 typedef unsigned long long uint64;

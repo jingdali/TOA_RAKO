@@ -17,6 +17,8 @@ void getloctime(void);
 void DMA_test(void);
 void SET_Tpoint(void);
 void GET_Time2Tpoint(void);
+void ShowTimeStack(void);
+	
 extern uint32 time_record;
 extern uint32 time_stack[];
 extern uint16 timestack_cnt;

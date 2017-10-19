@@ -27,6 +27,7 @@ void rx_ok_cb(const dwt_cb_data_t *cb_data)
 	uint16 frame_len;
 	uint32 status;
 	frame_len=cb_data->datalength;
+
 	if (frame_len <= RX_BUF_LEN)
 	{
 		if ((cb_data->fctrl[0] == ACK_FC_0) && (cb_data->fctrl[1] == ACK_FC_1))
@@ -76,12 +77,14 @@ uint64 get_rx_timestamp_u64(void)
 {
     uint8 ts_tab[5];
     uint64 ts = 0;
+//		uint8 *p=(uint8 *)&ts;
     int i;
     dwt_readrxtimestamp(ts_tab);
     for (i = 4; i >= 0; i--)
     {
         ts <<= 8;
         ts |= ts_tab[i];
+//				*(p+i)=ts_tab[i];
     }
     return ts;
 }

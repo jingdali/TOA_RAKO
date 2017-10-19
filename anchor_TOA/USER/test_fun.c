@@ -148,3 +148,12 @@ void going(void)
 {
 	triggle=1;
 }
+void ShowTimeStack(void)
+{
+	int i=timestack_cnt;
+	while(i)
+	{
+		double tmp=(double)time_stack[i-1]*4/1000;
+		printf("%d:%f us \r\n",i--,tmp);
+	}
+}
