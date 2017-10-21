@@ -63,7 +63,7 @@ typedef unsigned long long uint64;
 #endif
 #define NRFQUELen 50
 
-
+#define QUANTITY_ANCHOR 3
 extern  __IO uint32_t msec;
 
 extern uint8_t nrf_Tx_Buffer[33] ; // 无线传输发送数据
@@ -73,7 +73,7 @@ extern uint8 frame_seq_nb;
 extern uint8 dw_payloadbuff[];
 void reset_DW1000(void);
 void dw_setARER(int enable);
-extern uint8 DMA_transing;
+extern volatile uint8 DMA_transing;
 extern uint8 ACKframe[];
 extern uint8_t NrfQue[NRFQUELen][32];
 extern uint8_t NrfQcnt;

@@ -139,6 +139,7 @@ volatile uint8 tim14_int=0;
 uint8 triggle=0;
 uint8 tmp[5];
 uint16 Tag_ID=TAG_ID;
+uint8 QuantityAC=QUANTITY_ANCHOR;
 
 #ifdef TIMEBASE
 
@@ -292,23 +293,41 @@ int main(void)
 		cnt_toa++;
 		if(cnt_toa<10)
 		{
-//			for(i=0;i<QUANTITY_ANCHOR;i++)
-//			{
-//				if(twoway_ranging(0x01,&dis[i]))dis[0]=0;
-//			}
-//			send2MainAnch(dis,QUANTITY_ANCHOR);
-//			printf("sent data\r\n");
-			twoway_ranging(0x01,&dis[0]);
+			for(i=0;i<QuantityAC;i++)
+			{
+				uint8 failtime;
+				failtime=0;
+				while(failtime!=2)
+				{
+					if(twoway_ranging((uint8)(i+1),&dis[i])!=0)
+					{
+						failtime++;
+					}
+					else
+					{
+						//printf("%d:%3.2f\r\n",i,dis[i]);
+						break;
+					}
+				}
+				if(failtime==1)
+				{
+					//printf("%d:fail\r\n",i);
+				}
+					
+			}
+			send2MainAnch(dis,QuantityAC);
+
 			//Sleep
 			dwt_entersleep();
+			HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
 		}
 		else
 		{
+			HAULT_POINT
 			cnt_toa=0;
-			printf("poll\r\n");
 			POLL_TimeWindow();
 			Delay_ms(1000-ACtime%1000);
-			Delay_ms((TAG_ID-0x8000u)*50);//每个标签拥有20ms的间隔。第一個20ms給同步時間信號
+			Delay_ms((TAG_ID-0x8000u)*100-3);//每个标签拥有ms的间隔。第一個ms給同步時間信號
 			HAL_TIM_Base_Stop_IT(&htim14);
 			TIM14->CNT=0;
 			HAL_TIM_Base_Start_IT(&htim14);//tim14開始計時	
@@ -665,7 +684,7 @@ void POLL_TimeWindow(void)
 			if(isreceive_To==1)
 			{
 				isreceive_To=0;
-				printf("Time out\r\n");
+				//printf("Time out\r\n");
 				Delay_ms(200);
 			}
 			
@@ -682,7 +701,7 @@ void POLL_TimeWindow(void)
 				//localtime=ACtime;
 		}
 	}
-	printf("ACtime=%lx\r\n",ACtime);
+	//printf("ACtime=%lx\r\n",ACtime);
 	dwt_setrxtimeout(0);
 	
 }
@@ -742,7 +761,7 @@ int twoway_ranging(uint16 base_addr,float *distance)//單次測距函數
 		while(!isreceive_To&&!isframe_rec);
 		if(isreceive_To==1)
 		{
-			printf("WF_I_1_TO\r\n");
+			//printf("WF_I_1_TO\r\n");
 			isreceive_To=0;
 			TimeOutCNT++;
 		}
@@ -775,7 +794,7 @@ int twoway_ranging(uint16 base_addr,float *distance)//單次測距函數
 	while(!isreceive_To&&!isframe_rec);
 	if(isreceive_To==1)
 	{
-			printf("WF_I_2_TO\r\n");
+			//printf("WF_I_2_TO\r\n");
 			isreceive_To=0;
 			*distance=0;
 			goto error1;
@@ -796,15 +815,14 @@ int twoway_ranging(uint16 base_addr,float *distance)//單次測距函數
 	tof_dtu = (Ra * Rb - Da * Db) / (Ra + Rb + Da + Db);
 	tof = tof_dtu * DWT_TIME_UNITS;
   *distance = RANGE_BIAS+(float)tof * SPEED_OF_LIGHT;
-	printf("%3.2f\r\n",*distance);
 	return 0;
 error1:
-	printf("error1\r\n");
+	//printf("error1\r\n");
 	dwt_setrxaftertxdelay(0);
 	dwt_setrxtimeout(0);
 	return -1;
 error2:
-	printf("error2\r\n");
+	//printf("error2\r\n");
 	dwt_setrxaftertxdelay(0);
 	dwt_setrxtimeout(0);
 	return -2;
@@ -832,7 +850,7 @@ int send2MainAnch(float *data,int len)//發送數據給主機站
 		while(!isreceive_To&&!istxframe_acked);
 		if(isreceive_To==1)
 		{
-			printf("wait 4 ack Time out\r\n");
+			//printf("wait 4 ack Time out\r\n");
 			isreceive_To=0;
 			TimeOutCNT++;
 		}
@@ -842,7 +860,7 @@ int send2MainAnch(float *data,int len)//發送數據給主機站
 		}
 	}while(istxframe_acked!=1);
 	istxframe_acked=0;	
-	printf("acked\r\n");
+	//printf("acked\r\n");
 	dwt_setrxtimeout(0);//设置接受超时
 	return 0;
 }

@@ -22,7 +22,7 @@ static int WirelessSyncDataProcess_SA(void);
 static int AssignTimeWindow(void);
 static int TOAdata_process(void);
 static int DS_TwoWayRanging(void);
-
+static void Send2PC(void);
 void TIM7_init(void);
 void SWITCH_DB(void);
 void cacu_crc(void);
@@ -66,7 +66,7 @@ static uint8 eui[] = {'A', 'C', 'K', 'D', 'A', 'T', 'R', 'X'};
 static uint16 Achor_addr = ANCHOR_NUM; /* "RX" */
 
 uint8 rx_buffer[RX_BUF_LEN];
-uint8 DMA_transing=0;
+volatile uint8 DMA_transing=0;
 uint8 frame_seq_nb=0;
 //uint8 ACKframe[12]={0x41, 0x88, 0, 0xCA, 0xDE, 0x00, 0x00, 0x00, 0x00, 0xAC, 0, 0};
 uint8 ACKframe[5]={ACK_FC_0,ACK_FC_1,0,0,0};
@@ -76,6 +76,7 @@ uint16 TBsyctime=0xff;
 int idxreco=-1;
 uint16 TAG_datacnt=0;
 uint8 crc=0;
+uint8 QuantityAC=QUANTITY_ANCHOR;
 #ifdef TIMEBASE
 
 uint8 TBPOLL[14] = {0x41, 0x88, 0, 0xCA, 0xDE, 0xFF, 0xFF, 0, 0x80, 0x80, 0, 0};
@@ -237,14 +238,24 @@ int main(void)
 
 		 while(Qcnt)
 			{
-				
+				uint32 timerec;
+				uint32 timerec1;
+				uint32 timerec2;
 				switch(Que[front].buff[FUNCODE_IDX])
 					{
 						case 0x80:WirelessSyncDataProcess_MA();break;
 						case 0x81:WirelessSyncDataProcess_MA();break;
 						case 0x2B:AssignTimeWindow();break;
-						case 0x1A:TOAdata_process();break;
-						case 0x10:DS_TwoWayRanging();break;
+						//case 0x1A:TOAdata_process();break;
+						case 0x1A:
+							Send2PC();
+							timerec2=msec-timerec;
+							printf("%ld %ld\r\n",timerec1,timerec2);break;
+						case 0x10:
+							timerec=msec;
+							DS_TwoWayRanging();
+							timerec1=msec-timerec;
+							break;
 						default:printf("UNknow cmd\r\n");
 					}
 							
@@ -490,6 +501,57 @@ int TOAdata_process(void)
 	printf("TAG:%d No:%d\r\n",tagnumtmp,idx);
 	return 0;
 }
+void Send2PC(void)
+{
+	uint8 send_pc[20]={0xFB, 0xFB, 0x11, 0, 0, 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	float buff_dis[QUANTITY_ANCHOR];
+	int buff_dis2[QUANTITY_ANCHOR];
+	uint8_t i;
+	uint8_t len=17;
+	uint8_t crc=0;
+	uint8_t *pointerP;
+	
+	memcpy(buff_dis,Que[front].buff+10,sizeof(float));
+	memcpy(buff_dis+1,Que[front].buff+10+4,sizeof(float));
+	memcpy(buff_dis+2,Que[front].buff+10+8,sizeof(float));
+	//
+	send_pc[3]=0x38;
+	send_pc[4]=ANCHOR_NUM;
+	//tag_id
+	send_pc[6]=Que[front].buff[SOURADD];
+	send_pc[7]=Que[front].buff[SOURADD+1]-128;
+	
+	//wearing status
+	send_pc[8]=0x0E;
+	for(i=0;i<QuantityAC;i++)
+	{
+		buff_dis2[i]=(int)(buff_dis[i]*1000);
+	}
+	send_pc[9]=(uint8)((buff_dis2[0]>>8)&0xff);
+	send_pc[10]=(uint8)(buff_dis2[0]&0xff);
+
+	send_pc[11]=(uint8)((buff_dis2[1]>>8)&0xff);
+	send_pc[12]=(uint8)(buff_dis2[1]&0xff);
+
+	send_pc[13]=(uint8)((buff_dis2[2]>>8)&0xff);
+	send_pc[14]=(uint8)(buff_dis2[2]&0xff);
+	
+	pointerP=&send_pc[2];
+	CRC_ResetDR();
+	while(len--)
+	{
+		CRC_CalcCRC8bits(*pointerP++);
+	}
+	crc=(uint8)CRC_GetCRC();
+	send_pc[19]=crc;
+	DMA1_Channel2->CMAR=(uint32_t)&send_pc;
+	DMA1_Channel2->CNDTR=20;
+	while(DMA_transing);
+	DMA_transing=1;
+	DMA_Cmd(DMA1_Channel2, ENABLE);	
+	USART_DMACmd(USART1,USART_DMAReq_Tx,ENABLE);
+
+}
 
 int DS_TwoWayRanging(void)
 {
@@ -563,7 +625,7 @@ int DS_TwoWayRanging(void)
 	}
 	while(!isframe_sent);
 	isframe_sent=0;
-	printf("final sent!\r\n");
+	//printf("final sent!\r\n");
 	dwt_setrxaftertxdelay(0);
 	dwt_setrxtimeout(0);
 	dwt_rxenable(DWT_START_RX_IMMEDIATE);
@@ -689,7 +751,7 @@ void CRC_init(void)
 	CRC_DeInit();
 	CRC_SetInitRegister(0);
 	CRC_PolynomialSizeSelect(CRC_PolSize_8);
-	CRC_SetPolynomial(0x07);
+	CRC_SetPolynomial(0x07);//CRC-8 x8+x2+x+1 8Î»Ð£Ñé
 	
 }
 void DMA_init(void)
