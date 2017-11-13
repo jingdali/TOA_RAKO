@@ -100,6 +100,7 @@ void dw_setARER(int enable);
 void dw_closeack(void);
 int twoway_ranging(uint16 base_addr,float *dis);
 int send2MainAnch(float *data,int len);
+int read_mpu(int x);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -121,7 +122,12 @@ unsigned int localtime=0;//本地时间
 uint8_t usart_rx_buff[64];//串口buf
 uint8 tx_poll_msg[PLLMSGLEN] = {0x41, 0x88, 0, 0xCA, 0xDE, 0xFF, 0xFF, 0, 0, 0x80, 0, 0};//時鐘同步時進行廣播閃爍的
 
-
+struct IMUdata_str
+{
+	short gyro_short[3];
+	short accel_short[3];
+	long quat[4];
+}IMUdata[10];
 	
 uint8 dw_txseq_num=1;
 usart_bitfield USART_STA={
@@ -131,7 +137,7 @@ usart_bitfield USART_STA={
 };//串口接受狀態
 
 uint32 ACtime=0;
-char newdata=0;
+volatile unsigned char newdata=0;
 uint8 dwiswake=0;
 uint16 TBsynctime=0;
 volatile uint8 tim14_int=0;
@@ -287,17 +293,19 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+	
 	do
   {
   /* USER CODE END WHILE */
 		cnt_toa++;
 		if(cnt_toa<10)
 		{
+			uint8 failtime;
+			failtime=0;
 			for(i=0;i<QuantityAC;i++)
 			{
-				uint8 failtime;
-				failtime=0;
-				while(failtime!=2)
+				while(failtime!=10)
 				{
 					if(twoway_ranging((uint8)(i+1),&dis[i])!=0)
 					{
@@ -309,21 +317,17 @@ int main(void)
 						break;
 					}
 				}
-				if(failtime==1)
-				{
-					//printf("%d:fail\r\n",i);
-				}
 					
 			}
 			send2MainAnch(dis,QuantityAC);
 
 			//Sleep
-			dwt_entersleep();
+			//dwt_entersleep();
+			//HAL_PWR_DisableSleepOnExit();//sleep now
 			HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
 		}
 		else
 		{
-			HAULT_POINT
 			cnt_toa=0;
 			POLL_TimeWindow();
 			Delay_ms(1000-ACtime%1000);
@@ -331,13 +335,13 @@ int main(void)
 			HAL_TIM_Base_Stop_IT(&htim14);
 			TIM14->CNT=0;
 			HAL_TIM_Base_Start_IT(&htim14);//tim14開始計時	
-			tim14_int=0;			
+			tim14_int=0;
 		}
 		while(!tim14_int);
 		tim14_int=0;//tim14 发生中断
 
 		HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_SET);//wake up
-		Delay_us(500);
+		Delay_us(600);
 		HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_RESET);
 		Delay_ms(3);
 		dwt_setrxantennadelay(RX_ANT_DLY);
@@ -720,11 +724,12 @@ int twoway_ranging(uint16 base_addr,float *distance)//單次測距函數
 	int ret;
 	double tof_dtu;
 	double tof;
-	__align(4) uint8 tx_TOAbuff[12]={0x41, 0x88, 0, 0xCA, 0xDE, 0x00, 0x00, (uint8)Tag_ID, (uint8)(Tag_ID>>8), 0x10};//TOA定位所使用的buff
-
+	uint8 tx_TOAbuff[12]={0x41, 0x88, 0, 0xCA, 0xDE, 0x00, 0x00, 0, 0, 0x10};//TOA定位所使用的buff
+	tx_TOAbuff[SOURADD]=(uint8)tagid;
+	tx_TOAbuff[SOURADD+1]=(uint8)(tagid>>8);
 	tx_TOAbuff[DESTADD]=(uint8)base_addr;
 	tx_TOAbuff[DESTADD+1]=(uint8)(base_addr>>8);
-	tx_TOAbuff[0]=0x41;//请求应答
+	tx_TOAbuff[0]=0x41;//
 	dwt_writetxdata(12, tx_TOAbuff, 0);//发起定位请求
 	dwt_writetxfctrl(12, 0, 0);
 //	dwt_setrxtimeout(800);//设置接受超时
@@ -754,10 +759,15 @@ int twoway_ranging(uint16 base_addr,float *distance)//單次測距函數
 //	}while(istxframe_acked!=1);
 //	istxframe_acked=0;
 	TimeOutCNT=0;
-	dwt_setrxtimeout(4500);//设置接受超时
+	dwt_setrxtimeout(1000);//设置接受超时
 	do
 	{
 		ret=dwt_starttx(DWT_START_TX_IMMEDIATE|DWT_RESPONSE_EXPECTED);
+		if(ret == DWT_ERROR)
+		{
+				*distance=0;
+				goto error2;
+		}
 		while(!isreceive_To&&!isframe_rec);
 		if(isreceive_To==1)
 		{
@@ -768,6 +778,7 @@ int twoway_ranging(uint16 base_addr,float *distance)//單次測距函數
 		if(TimeOutCNT==1)
 		{
 			*distance=0;
+			Delay_ms(3);//保证基站已经退出定位子程序
 			goto error1;			
 		}
 	}while(!isframe_rec);
@@ -779,7 +790,7 @@ int twoway_ranging(uint16 base_addr,float *distance)//單次測距函數
 	tx_TOAbuff[0]=0x41;//不需要應答
 	tx_TOAbuff[FUNCODE_IDX]=0x12;
 //	dwt_setrxaftertxdelay(1);//here some value can be set to reduce power consumption
-	dwt_setrxtimeout(4500);	
+	dwt_setrxtimeout(2200);	
 	dwt_writetxdata(12, tx_TOAbuff, 0);//
 	dwt_writetxfctrl(12, 0, 1);	
 	
@@ -840,7 +851,7 @@ int send2MainAnch(float *data,int len)//發送數據給主機站
 	memcpy(tx_TOAdata+TOA_DATA_IDX,data,len*sizeof(float));
 	dwt_writetxdata(TOA_MSG_LEN, tx_TOAdata, 0);
 	dwt_writetxfctrl(TOA_MSG_LEN, 0, 0);
-	dwt_setrxtimeout(500);//设置接受超时
+	dwt_setrxtimeout(1000);//设置接受超时
 	TimeOutCNT=0;
 	do
 	{
@@ -863,6 +874,18 @@ int send2MainAnch(float *data,int len)//發送數據給主機站
 	//printf("acked\r\n");
 	dwt_setrxtimeout(0);//设置接受超时
 	return 0;
+}
+int read_mpu(int x)//if x = 0 read the fifo but not update buff, if x=1 read and update
+{
+	unsigned char more;
+	if(x==0)
+	{
+
+	}
+	else
+	{
+		
+	}
 }
 
 

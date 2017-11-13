@@ -39,8 +39,6 @@ void MPU9250_Init(void)
 		    DMP_FEATURE_GYRO_CAL);
 		dmp_set_fifo_rate(10);
 
-		mpu_set_dmp_state(1);
-
 	__set_PRIMASK(0);
 }
 void run_self_test(void)

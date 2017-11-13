@@ -257,13 +257,23 @@ void EXTI0_1_IRQHandler(void)
 		
 		
 	}
-		if(__HAL_GPIO_EXTI_GET_FLAG(MPU_INT_Pin))
+	if(__HAL_GPIO_EXTI_GET_FLAG(MPU_INT_Pin))
 	{
 		
-		newdata=1;
+		newdata++;
+		if(newdata==10)
+		{
+			tim14_int=1;
+			newdata=0;
+		}
+		else
+		{
+			HAL_PWR_EnableSleepOnExit();//processer sleep when the interrupt is handled
+			HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+		}
+			
 		__HAL_GPIO_EXTI_CLEAR_FLAG(MPU_INT_Pin);
-		
-		
+
 	}
 		
 }

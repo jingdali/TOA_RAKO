@@ -44,23 +44,30 @@ void rx_ok_cb(const dwt_cb_data_t *cb_data)
 	uint16 frame_len;
 	uint8 rtxtimes=0;
 	frame_len=cb_data->datalength;
-	#ifdef MAIN_ANCHOR
 	if (frame_len <= RX_BUF_LEN)
 	{
 		if ((cb_data->fctrl[0] == ACK_FC_0) && (cb_data->fctrl[1] == ACK_FC_1))
 		{
 			istxframe_acked=1;
+			dwt_rxenable(DWT_START_RX_IMMEDIATE);
 		}
 		else
 		{
 						
 			if(cb_data->status&SYS_STATUS_AAT)
 			{
-				while (!(dwt_read32bitreg(SYS_STATUS_ID) & SYS_STATUS_TXFRS ));
-				dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_TXFRS);
-				dwt_forcetrxoff(); 
-        dwt_rxreset(); 
-				
+//				while (!(dwt_read32bitreg(SYS_STATUS_ID) & SYS_STATUS_TXFRS ));
+//				dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_TXFRS);
+//				dwt_forcetrxoff(); 
+//        dwt_rxreset();				
+					dwt_writetxdata(5, ACKframe, 0); /* Zero offset in TX buffer. */
+					dwt_writetxfctrl(5, 0, 0); /* Zero offset in TX buffer, ranging. */
+					while(dwt_starttx(DWT_START_TX_IMMEDIATE)!=DWT_SUCCESS);
+					while (!(dwt_read32bitreg(SYS_STATUS_ID) & SYS_STATUS_TXFRS ));
+					dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_TXFRS);
+					dwt_forcetrxoff(); 
+					dwt_rxreset();		
+
 			}
 			isframe_rec=1;
 			
@@ -90,57 +97,7 @@ void rx_ok_cb(const dwt_cb_data_t *cb_data)
 		
 	}
 
-	
 
-	#else
-	//从基站回调处理
-	if (frame_len <= RX_BUF_LEN)
-	{
-		if ((cb_data->fctrl[0] == ACK_FC_0) && (cb_data->fctrl[1] == ACK_FC_1))
-		{
-			istxframe_acked=1;
-		}
-		else
-		{
-			
-			if(cb_data->status&SYS_STATUS_AAT)
-			{
-				while (!(dwt_read32bitreg(SYS_STATUS_ID) & SYS_STATUS_TXFRS ));
-				dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_TXFRS);
-				dwt_forcetrxoff(); 
-        dwt_rxreset(); 
-			}
-			isframe_rec=1;
-			if(TOARanging)//处于toa定位流程中的时候不适合使用队列
-			{
-				dwt_readrxdata(Que[front].buff, frame_len, 0);
-				//Que[front].rx_timestamp=get_rx_timestamp_u64();
-			}
-			else
-			{
-				if(Qcnt<=Que_Length)
-				{
-					Que[rear].arrivetime=msec;
-					dwt_readrxdata(Que[rear].buff, frame_len, 0);
-					if(Que[rear].buff[FUNCODE_IDX]==0x80)
-					{
-					Que[rear].rx_timestamp=get_rx_timestamp_u64();
-					}
-					rear=(rear+1)%Que_Length;
-					Qcnt++;
-				}
-				isframe_rec=0;
-				dwt_rxenable(DWT_START_RX_IMMEDIATE);
-			}
-			
-			
-		}
-
-		
-	}
-	
-
-	#endif	
 
 }
 

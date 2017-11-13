@@ -26,11 +26,11 @@ static void Send2PC(void);
 void TIM7_init(void);
 void SWITCH_DB(void);
 void cacu_crc(void);
-#ifdef MAIN_ANCHOR
+
 void start_DMA(uint8 data_cnt);
 void DMA_init(void);
 void CRC_init(void);
-#endif
+
 //static dwt_config_t config = {
 //    2,               /* Channel number. */
 //    DWT_PRF_64M,     /* Pulse repetition frequency. */
@@ -70,6 +70,7 @@ volatile uint8 DMA_transing=0;
 uint8 frame_seq_nb=0;
 //uint8 ACKframe[12]={0x41, 0x88, 0, 0xCA, 0xDE, 0x00, 0x00, 0x00, 0x00, 0xAC, 0, 0};
 uint8 ACKframe[5]={ACK_FC_0,ACK_FC_1,0,0,0};
+uint8 send_pc[22]={0xFB, 0xFB, 0x11, 0, 0, 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 uint8 dw_payloadbuff[127];
 uint16 TBsyctime=0xff;
 
@@ -80,6 +81,7 @@ uint8 QuantityAC=QUANTITY_ANCHOR;
 #ifdef TIMEBASE
 
 uint8 TBPOLL[14] = {0x41, 0x88, 0, 0xCA, 0xDE, 0xFF, 0xFF, 0, 0x80, 0x80, 0, 0};
+
 uint32 sync_preiod=0;
 uint32 preiodtable[]={
 											0x7EDFC54UL,//533ms 0
@@ -106,7 +108,7 @@ uint16 preiodtable_ms[]={
 											100,//100ms 9
 											};
 #endif
-#ifdef MAIN_ANCHOR
+
 
 struct HEAD_str
 {
@@ -139,7 +141,7 @@ struct TG_DATA_str
 	uint8 MPUdata[4][28];
 	#endif
 }TG_DATA[TGDATA_BUFFLEN];//*10 bytes
-#endif
+
 
 
 int main(void)
@@ -211,7 +213,7 @@ int main(void)
 		dwt_enableframefilter(DWT_FF_DATA_EN|DWT_FF_ACK_EN);
 
     /* Activate auto-acknowledgement. Time is set to 0 so that the ACK is sent as soon as possible after reception of a frame. */
-    dwt_enableautoack(5);
+    dwt_enableautoack(8);
 		dwt_setrxtimeout(0);
 		
 #ifdef 		MAIN_ANCHOR
@@ -238,9 +240,6 @@ int main(void)
 
 		 while(Qcnt)
 			{
-				uint32 timerec;
-				uint32 timerec1;
-				uint32 timerec2;
 				switch(Que[front].buff[FUNCODE_IDX])
 					{
 						case 0x80:WirelessSyncDataProcess_MA();break;
@@ -249,14 +248,11 @@ int main(void)
 						//case 0x1A:TOAdata_process();break;
 						case 0x1A:
 							Send2PC();
-							timerec2=msec-timerec;
-							printf("%ld %ld\r\n",timerec1,timerec2);break;
-						case 0x10:
-							timerec=msec;
-							DS_TwoWayRanging();
-							timerec1=msec-timerec;
 							break;
-						default:printf("UNknow cmd\r\n");
+						case 0x10:
+							DS_TwoWayRanging();
+							break;
+						default:;//printf("UNknow cmd\r\n");
 					}
 							
 				front=(front+1)%Que_Length;
@@ -287,7 +283,7 @@ int main(void)
 			{
 				case 0x80:WirelessSyncDataProcess_SA();break;
 				case 0x10:DS_TwoWayRanging();break;
-				default:printf("unkonwn cmd\r\n");
+				default:;//printf("unkonwn cmd\r\n");
 			}
 			front=(front+1)%Que_Length;
 			Qcnt--;
@@ -503,7 +499,6 @@ int TOAdata_process(void)
 }
 void Send2PC(void)
 {
-	uint8 send_pc[20]={0xFB, 0xFB, 0x11, 0, 0, 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	float buff_dis[QUANTITY_ANCHOR];
 	int buff_dis2[QUANTITY_ANCHOR];
 	uint8_t i;
@@ -544,9 +539,12 @@ void Send2PC(void)
 	}
 	crc=(uint8)CRC_GetCRC();
 	send_pc[19]=crc;
-	DMA1_Channel2->CMAR=(uint32_t)&send_pc;
-	DMA1_Channel2->CNDTR=20;
+	send_pc[20]='\r';
+	send_pc[21]='\n';
 	while(DMA_transing);
+	DMA_Cmd(DMA1_Channel2, DISABLE);	
+	DMA1_Channel2->CMAR=(uint32_t)send_pc;
+	DMA1_Channel2->CNDTR=22;
 	DMA_transing=1;
 	DMA_Cmd(DMA1_Channel2, ENABLE);	
 	USART_DMACmd(USART1,USART_DMAReq_Tx,ENABLE);
@@ -555,14 +553,14 @@ void Send2PC(void)
 
 int DS_TwoWayRanging(void)
 {
-	uint8 TimeOutCNT=0;
 	int ret;
 	uint32 delayed_txtime=0;
 	uint64 poll_tx_ts;
 	uint64 resp_rx_ts;
 	uint64 final_tx_ts;
-	__align(4) uint8 tx_TOAbuff[27]={0x41, 0x88, 0, 0xCA, 0xDE, 0x00, 0x00, 0x00, 0x00, 0x10};//TOA定位所使用的buff
+	uint8 tx_TOAbuff[27]={0x41, 0x88, 0, 0xCA, 0xDE, 0x00, 0x00, 0x00, 0x00, 0x10};//TOA定位所使用的buff
 	uint32 timetmp;
+	uint8 TimeOutCNT=0;
 	dwt_forcetrxoff();
 	dwt_rxreset();
 	TOARanging=1;
@@ -571,7 +569,7 @@ int DS_TwoWayRanging(void)
 	tx_TOAbuff[SOURADD]=(uint8)Achor_addr;
 	tx_TOAbuff[SOURADD+1]=(uint8)(Achor_addr>>8);
 	tx_TOAbuff[FUNCODE_IDX]=0x11;
-	dwt_setrxtimeout(10000);//设置接受超时
+	dwt_setrxtimeout(2200);//设置接受超时
 	TimeOutCNT=0;
 	dwt_writetxdata(12, tx_TOAbuff, 0); /* Zero offset in TX buffer. */
 	dwt_writetxfctrl(12, 0, 1); /* Zero offset in TX buffer, ranging. */
@@ -589,7 +587,7 @@ int DS_TwoWayRanging(void)
 		while(!isreceive_To&&!isframe_rec);
 		if(isreceive_To==1)
 		{
-			printf("I_1_TO\r\n");
+			//printf("I_1_TO\r\n");
 			isreceive_To=0;
 			TimeOutCNT++;
 			dwt_rxenable(DWT_START_RX_IMMEDIATE);
@@ -634,18 +632,19 @@ int DS_TwoWayRanging(void)
 //		double tmp=(double)time_stack[timestack_cnt-1]*4/1000;
 //		printf("%d:%f us \r\n",timestack_cnt--,tmp);
 //	}
+
 	TOARanging=0;
 	return 0;
 error1:
 	TOARanging=0;
-	printf("error1\r\n");
+	//printf("error1\r\n");
 	dwt_setrxaftertxdelay(0);
 	dwt_setrxtimeout(0);
 	dwt_rxenable(DWT_START_RX_IMMEDIATE);
 	return -1;
 error2:
 	TOARanging=0;
-	printf("error2\r\n");
+	//printf("error2\r\n");
 	dwt_setrxaftertxdelay(0);
 	dwt_setrxtimeout(0);
 	dwt_rxenable(DWT_START_RX_IMMEDIATE);
@@ -743,7 +742,7 @@ void TIM7_IRQHandler(void)
 	TIM_ClearITPendingBit(TIM7,TIM_IT_Update);
 
 }
-#ifdef MAIN_ANCHOR
+
 void CRC_init(void)
 {
 
@@ -793,7 +792,6 @@ void DMA1_Channel2_3_IRQHandler(void)
 	{
 		DMA_ClearFlag(DMA1_FLAG_TC2);
 		DMA_ClearFlag(DMA1_FLAG_GL2);
-		DMA_Cmd(DMA1_Channel2, DISABLE);	
 		DMA_transing=0;
 		
 	}
@@ -827,7 +825,7 @@ void start_DMA(uint8 data_cnt)
 
 }
 
-#endif
+
 void SWITCH_DB(void)
 {
   uint8 tmp;

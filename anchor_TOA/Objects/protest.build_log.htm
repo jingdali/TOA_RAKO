@@ -27,32 +27,21 @@ Project File Date:  10/13/2017
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 4 (build 422)', folder: 'D:\Program Files\keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
-compiling main.c...
-USER\main.c(149): warning:  #177-D: variable "status"  was declared but never referenced
-        uint32 status;
-USER\main.c(150): warning:  #177-D: variable "MPUdataidx"  was declared but never referenced
-        uint8 MPUdataidx;
-USER\main.c(379): warning:  #2748-D: null argument provided for parameter marked with attribute "nonnull"
-                                fputc((int)crc,
-ULL);
-USER\main.c(565): warning:  #177-D: variable "timetmp"  was declared but never referenced
-        uint32 timetmp;
-USER\main.c(431): warning:  #177-D: function "WirelessSyncDataProcess_SA"  was declared but never referenced
-  int WirelessSyncDataProcess_SA(void)
-USER\main.c(494): warning:  #177-D: function "TOAdata_process"  was declared but never referenced
-  int TOAdata_process(void)
-USER\main.c: 6 warnings, 0 errors
+compiling deca_callback.c...
+HARDWARE\Platform_deca\deca_callback.c(45): warning:  #177-D: variable "rtxtimes"  was declared but never referenced
+        uint8 rtxtimes=0;
+HARDWARE\Platform_deca\deca_callback.c: 1 warning, 0 errors
 linking...
-Program Size: Code=21764 RO-data=844 RW-data=656 ZI-data=5088  
+Program Size: Code=21652 RO-data=844 RW-data=676 ZI-data=5092  
 FromELF: creating hex file...
-".\Objects\protest.axf" - 0 Error(s), 6 Warning(s).
+".\Objects\protest.axf" - 0 Error(s), 1 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   F:\STM32_Projects\Cube\TOA_RAKO\anchor_TOA\RTE\_Target_1
   D:\Program Files\keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.5.0\Device\Include
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:02
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>

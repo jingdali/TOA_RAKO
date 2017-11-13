@@ -22,7 +22,7 @@
 #define q30 1073741824.0f
 #define TX_ANT_DLY 16495
 #define RX_ANT_DLY 16495
-#define TAG_ID 1u|0x8000u
+#define TAG_ID 2u|0x8000u
 #if TAG_ID>0x8000u
 #else
 #define TIMEBASE
@@ -44,7 +44,7 @@
 /*
 	一些用於TOA定位的宏
 */
-#define RESP_TX_DELAYED_UUS 2000
+#define RESP_TX_DELAYED_UUS 1500
 #define RESP_TX_DELAYED_MS 30
 #define UUS_TO_DWT_TIME 65536
 #define FINAL_MSG_POLL_TX_TS_IDX 10
@@ -74,7 +74,7 @@ extern SPI_HandleTypeDef hspi2;
 extern TIM_HandleTypeDef htim14;
 
 extern UART_HandleTypeDef huart1;
-extern char newdata;
+extern volatile unsigned char newdata;
 extern uint8 dw_txseq_num;
 extern uint8 dwiswake;
 
