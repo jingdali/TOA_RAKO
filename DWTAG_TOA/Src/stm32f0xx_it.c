@@ -272,7 +272,7 @@ void EXTI0_1_IRQHandler(void)
 			HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
 		}
 			
-		__HAL_GPIO_EXTI_CLEAR_FLAG(MPU_INT_Pin);
+		__HAL_GPIO_EXTI_CLEAR_FLAG(MPU_INT_Pin);//clear flag
 
 	}
 		

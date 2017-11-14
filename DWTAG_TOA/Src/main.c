@@ -224,7 +224,6 @@ int main(void)
 #endif
 
 	SPI1->CR1|=SPI_CR1_SPE;//nrf_SPI£¬doesn'e use hal lib
-	
 	//disable systick interrupt , I will use the systick in IIC. The hal_delay is strong defined in delay.c
 
 	delay_init();
@@ -294,7 +293,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-	
+	// MPU
 	do
   {
   /* USER CODE END WHILE */
