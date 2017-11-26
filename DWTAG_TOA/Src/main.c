@@ -50,7 +50,7 @@ SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi2;
 TIM_HandleTypeDef htim14;
 UART_HandleTypeDef huart1;
-
+RTC_HandleTypeDef hrtc;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
@@ -91,11 +91,13 @@ static void MX_USART1_UART_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM14_Init(void);
+static void MX_RTC_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 static void EXTI2_3_IRQHandler_Config(void);
 static void EXTI0_1_IRQHandler_Config(void);
+void SYSCLKConfig_STOP(void);
 void dw_setARER(int enable);
 void dw_closeack(void);
 int twoway_ranging(uint16 base_addr,float *dis);
@@ -209,7 +211,7 @@ int main(void)
   MX_SPI2_Init();
   MX_SPI1_Init();
   MX_TIM14_Init();
-
+	MX_RTC_Init();
   /* USER CODE BEGIN 2 */
 #ifdef	FLASHPROTECT
 	HAL_FLASH_Unlock();
@@ -243,7 +245,28 @@ int main(void)
 //	printf("24l01 Exist\r\n");
 //		
 //	NRF24L01_TX_Mode();
-	
+	HAL_TIM_Base_Start_IT(&htim14);//tim14é_Ê¼Ó‹•r	
+	HAULT_POINT
+	HAL_TIM_Base_Stop_IT(&htim14);//tim14é_Ê¼Ó‹•r	
+	   /**Enable the WakeUp 
+    */
+  if (HAL_RTCEx_SetWakeUpTimer_IT(&hrtc, 19484, RTC_WAKEUPCLOCK_RTCCLK_DIV2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+	while(1)
+	{
+//		uint32_t wkcnt;
+//		wkcnt=HAL_RTCEx_GetWakeUpTimer(&hrtc);
+//		printf("wk=%ul\r\n",wkcnt);
+//		delay_ms(5);
+//		wkcnt=HAL_RTCEx_GetWakeUpTimer(&hrtc);
+//		printf("wk=%ul\r\n",wkcnt);
+		HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+//		HAL_RTCEx_DeactivateWakeUpTimer(&hrtc);
+		SYSCLKConfig_STOP();
+		printf("wake up\r\n");
+	}
 	reset_DW1000();
 	printf("dwreset_OK\r\n");
 	
@@ -361,8 +384,9 @@ void SystemClock_Config(void)
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_PeriphCLKInitTypeDef PeriphClkInit;
 
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+	RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = 16;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
@@ -389,7 +413,13 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-
+	
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+  PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+  {
+    Error_Handler();
+  }
   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
 
   HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
@@ -397,7 +427,75 @@ void SystemClock_Config(void)
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
+void SYSCLKConfig_STOP(void)
+{
+  RCC_ClkInitTypeDef RCC_ClkInitStruct;
+  RCC_OscInitTypeDef RCC_OscInitStruct;
+  RCC_PeriphCLKInitTypeDef PeriphClkInit;
+  /* Enable Power Control clock */
+  __HAL_RCC_PWR_CLK_ENABLE();
 
+  uint32_t pFLatency = 0;
+
+  /* Get the Oscillators configuration according to the internal RCC registers */
+  HAL_RCC_GetOscConfig(&RCC_OscInitStruct);
+
+  /* After wake-up from STOP reconfigure the system clock: Enable HSI and PLL */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSEState = RCC_HSI_ON;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /* Get the Clocks configuration according to the internal RCC registers */
+  HAL_RCC_GetClockConfig(&RCC_ClkInitStruct, &pFLatency);
+
+  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
+     clocks dividers */
+
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+	
+	PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1;
+  PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK1;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+  {
+    Error_Handler();
+  }
+	
+}
+static void MX_RTC_Init(void)
+{
+
+  hrtc.Instance = RTC;
+  hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
+  hrtc.Init.AsynchPrediv = 127;
+  hrtc.Init.SynchPrediv = 255;
+  hrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
+  hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+  hrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+  if (HAL_RTC_Init(&hrtc) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+
+    /**Enable Calibration 
+    */
+  if (HAL_RTCEx_SetCalibrationOutPut(&hrtc, RTC_CALIBOUTPUT_512HZ) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
 /* SPI1 init function */
 static void MX_SPI1_Init(void)
 {
@@ -469,7 +567,7 @@ static void MX_USART1_UART_Init(void)
 {
 
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = 9600;
+  huart1.Init.BaudRate = 115200;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
@@ -899,6 +997,7 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler */
   /* User can add his own implementation to report the HAL error return state */
+	printf("error\r\n");
   while(1) 
   {
   }

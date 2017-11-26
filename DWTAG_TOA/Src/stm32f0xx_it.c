@@ -43,11 +43,14 @@ extern uint8_t usart_rx_buff[64];
 extern uint8_t USART_tmp;
 extern unsigned int localtime;
 extern usart_bitfield USART_STA;
+
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim14;
-
+extern RTC_HandleTypeDef hrtc;
+extern void SystemClock_Config(void);
+extern void SYSCLKConfig_STOP(void);
 /******************************************************************************/
 /*            Cortex-M0 Processor Interruption and Exception Handlers         */ 
 /******************************************************************************/
@@ -293,6 +296,16 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	USART_STA.RD=0;
 	HAL_UART_Receive_IT(&huart1, usart_rx_buff, 64);
 	
+}
+void RTC_IRQHandler(void)
+{
+  /* USER CODE BEGIN RTC_IRQn 0 */
+
+  /* USER CODE END RTC_IRQn 0 */
+  HAL_RTCEx_WakeUpTimerIRQHandler(&hrtc);
+  /* USER CODE BEGIN RTC_IRQn 1 */
+
+  /* USER CODE END RTC_IRQn 1 */
 }
 
 
