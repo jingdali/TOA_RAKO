@@ -17,7 +17,12 @@
 "f072cbt6\stm32f0xx_hal_cortex.o"
 "f072cbt6\stm32f0xx_hal_spi.o"
 "f072cbt6\stm32f0xx_hal_spi_ex.o"
+<<<<<<< HEAD
 "f072cbt6\stm32f0xx_hal_iwdg.o"
+=======
+"f072cbt6\stm32f0xx_hal_rtc.o"
+"f072cbt6\stm32f0xx_hal_rtc_ex.o"
+>>>>>>> rtc_feature
 "f072cbt6\system_stm32f0xx.o"
 "f072cbt6\startup_stm32f072xb.o"
 "f072cbt6\stm32f0xx_it.o"
