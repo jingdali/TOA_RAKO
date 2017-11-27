@@ -3,7 +3,7 @@
 <title>Static Call Graph - [f072cbt6\f072cbt6.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image f072cbt6\f072cbt6.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Sun Nov 26 14:55:26 2017
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Mon Nov 27 20:02:08 2017
 <BR><P>
 <H3>Maximum Stack Usage =        416 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -414,15 +414,15 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[8f]"></a>HAL_GPIO_WritePin</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, stm32f0xx_hal_gpio.o(i.HAL_GPIO_WritePin))
-<BR><BR>[Called By]<UL><LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;writetospi
-<LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;readfromspi
-<LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;NRF24L01_Write_Reg
+<BR><BR>[Called By]<UL><LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;NRF24L01_Write_Reg
 <LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;NRF24L01_TX_Mode
 <LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;NRF24L01_Read_Reg
 <LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;NRF24L01_RX_Mode
 <LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_GPIO_Init
 <LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;NRF24L01_Write_Buf
 <LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;NRF24L01_Read_Buf
+<LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;writetospi
+<LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;readfromspi
 </UL>
 
 <P><STRONG><a name="[5f]"></a>HAL_GetTick</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, stm32f0xx_hal.o(i.HAL_GetTick))
@@ -1136,15 +1136,15 @@ Global Symbols
 <P><STRONG><a name="[e6]"></a>__scatterload_zeroinit</STRONG> (Thumb, 14 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_zeroinit), UNUSED)
 
 <P><STRONG><a name="[b3]"></a>decamutexoff</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, deca_mutex.o(i.decamutexoff))
-<BR><BR>[Called By]<UL><LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;writetospi
+<BR><BR>[Called By]<UL><LI><a href="#[af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_forcetrxoff
+<LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;writetospi
 <LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;readfromspi
-<LI><a href="#[af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_forcetrxoff
 </UL>
 
 <P><STRONG><a name="[b0]"></a>decamutexon</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, deca_mutex.o(i.decamutexon))
-<BR><BR>[Called By]<UL><LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;writetospi
+<BR><BR>[Called By]<UL><LI><a href="#[af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_forcetrxoff
+<LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;writetospi
 <LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;readfromspi
-<LI><a href="#[af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_forcetrxoff
 </UL>
 
 <P><STRONG><a name="[ae]"></a>delay_init</STRONG> (Thumb, 52 bytes, Stack size 8 bytes, delay.o(i.delay_init))
