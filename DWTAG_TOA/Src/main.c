@@ -50,7 +50,7 @@ SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi2;
 TIM_HandleTypeDef htim14;
 UART_HandleTypeDef huart1;
-
+IWDG_HandleTypeDef IwdgHandle;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
@@ -91,7 +91,8 @@ static void MX_USART1_UART_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM14_Init(void);
-
+static void IWDG_init(uint32_t LsiFreq);
+static void IWDG_Feed(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 static void EXTI2_3_IRQHandler_Config(void);
@@ -189,6 +190,7 @@ int main(void)
 //	unsigned long sensor_timestamp;
 //	uint8_t tmp_buf[12];
 //	uint8_t j,key,flag,MPUdatacnt=0;
+	uint32 status;
 	uint8_t i;
 	uint8 cnt_toa=0;
 	uint16 tagid=TAG_ID;
@@ -289,7 +291,9 @@ int main(void)
 	cnt_toa=10;
 	HAL_TIM_Base_Start_IT(&htim14);//tim14開始計時	
   /* USER CODE END 2 */
-
+	IWDG_init(40000);
+//  /* USER CODE END 2 */
+	IWDG_Feed();
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
@@ -304,6 +308,7 @@ int main(void)
 			failtime=0;
 			for(i=0;i<QuantityAC;i++)
 			{
+				IWDG_Feed();
 				while(failtime!=10)
 				{
 					if(twoway_ranging((uint8)(i+1),&dis[i])!=0)
@@ -319,18 +324,21 @@ int main(void)
 					
 			}
 			send2MainAnch(dis,QuantityAC);
-
+			printf("end \r\n");
+			IWDG_Feed();
 			//Sleep
-			//dwt_entersleep();
-			//HAL_PWR_DisableSleepOnExit();//sleep now
+			dwt_entersleep();
+			HAL_PWR_DisableSleepOnExit();//sleep now
 			HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
 		}
 		else
 		{
 			cnt_toa=0;
 			POLL_TimeWindow();
+			IWDG_Feed();
 			Delay_ms(1000-ACtime%1000);
 			Delay_ms((TAG_ID-0x8000u)*100-3);//每个标签拥有ms的间隔。第一個ms給同步時間信號
+			IWDG_Feed();
 			HAL_TIM_Base_Stop_IT(&htim14);
 			TIM14->CNT=0;
 			HAL_TIM_Base_Start_IT(&htim14);//tim14開始計時	
@@ -339,12 +347,25 @@ int main(void)
 		while(!tim14_int);
 		tim14_int=0;//tim14 发生中断
 
-		HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_SET);//wake up
-		Delay_us(600);
-		HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_RESET);
-		Delay_ms(3);
+//		HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_SET);//wake up
+//		Delay_us(600);
+//		HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_RESET);
+//		Delay_ms(3);
+//		dwt_setrxantennadelay(RX_ANT_DLY);
+//		dwt_settxantennadelay(TX_ANT_DLY);
+		IWDG_Feed();
+		do
+		{
+			HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_SET);//wake up
+			Delay_us(700);
+			HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_RESET);
+			Delay_ms(5);
+			status=0x02&dwt_read32bitreg(SYS_STATUS_ID);
+		}while(!status);
+
 		dwt_setrxantennadelay(RX_ANT_DLY);
 		dwt_settxantennadelay(TX_ANT_DLY);
+		IWDG_Feed();
   /* USER CODE BEGIN 3 */
 	
   }while(1);
@@ -887,7 +908,45 @@ int read_mpu(int x)//if x = 0 read the fifo but not update buff, if x=1 read and
 	}
 }
 
+void IWDG_init(uint32_t LsiFreq)
+{
+	/*##-3- Configure the IWDG peripheral ######################################*/
+  /* Set counter reload value to obtain 250ms IWDG TimeOut.
+     IWDG counter clock Frequency = LsiFreq / 32
+     Counter Reload Value = 250ms / IWDG counter clock period
+                          = 0.25s / (32/LsiFreq)
+                          = LsiFreq / (32 * 4)
+                          = LsiFreq / 128 */
+  IwdgHandle.Instance = IWDG;
 
+  IwdgHandle.Init.Prescaler = IWDG_PRESCALER_32;
+  IwdgHandle.Init.Reload    = LsiFreq / 12;
+  IwdgHandle.Init.Window    = IWDG_WINDOW_DISABLE;
+
+  if (HAL_IWDG_Init(&IwdgHandle) != HAL_OK)
+  {
+    /* Initialization Error */
+    Error_Handler();
+  }
+	
+	/*##-4- Start the IWDG #####################################################*/
+  if (HAL_IWDG_Start(&IwdgHandle) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
+
+
+void IWDG_Feed(void)
+{
+	
+	/* Refresh IWDG: reload counter */
+    if (HAL_IWDG_Refresh(&IwdgHandle) != HAL_OK)
+    {
+      /* Refresh Error */
+      Error_Handler();
+    }
+}
 /* USER CODE END 4 */
 
 /**

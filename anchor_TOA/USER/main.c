@@ -12,6 +12,7 @@
 #include "rf24l01.h"
 #include "Deca_user_api.h"
 #include "test_fun.h"
+#include "wdg.h"
 //#define FLASHPROTECT
 //#define MAXRDPLEVEL
 #define TGDATA_BUFFLEN 10
@@ -23,6 +24,7 @@ static int AssignTimeWindow(void);
 static int TOAdata_process(void);
 static int DS_TwoWayRanging(void);
 static void Send2PC(void);
+static void pollSend2PC(void);
 void TIM7_init(void);
 void SWITCH_DB(void);
 void cacu_crc(void);
@@ -70,10 +72,13 @@ volatile uint8 DMA_transing=0;
 uint8 frame_seq_nb=0;
 //uint8 ACKframe[12]={0x41, 0x88, 0, 0xCA, 0xDE, 0x00, 0x00, 0x00, 0x00, 0xAC, 0, 0};
 uint8 ACKframe[5]={ACK_FC_0,ACK_FC_1,0,0,0};
-uint8 send_pc[22]={0xFB, 0xFB, 0x11, 0, 0, 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+uint8 send_pc[20]={0xFB, 0xFB, 0x11, 0, 0, 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 uint8 dw_payloadbuff[127];
 uint16 TBsyctime=0xff;
-
+	
+float buff_dis[QUANTITY_ANCHOR];//float 地址buff
+int buff_dis2[QUANTITY_ANCHOR];//int 地址buff
+int buff_dis3[QUANTITY_ANCHOR];//过滤地址buff
 int idxreco=-1;
 uint16 TAG_datacnt=0;
 uint8 crc=0;
@@ -215,7 +220,7 @@ int main(void)
     /* Activate auto-acknowledgement. Time is set to 0 so that the ACK is sent as soon as possible after reception of a frame. */
     dwt_enableautoack(8);
 		dwt_setrxtimeout(0);
-		
+		IWDG_Init(6,625);
 #ifdef 		MAIN_ANCHOR
 //		dwt_setdblrxbuffmode(1);
 		DMA_init();
@@ -235,11 +240,13 @@ int main(void)
 #endif
 	 while(1) 
 	 {
+		 IWDG_Feed();
 		
 	#ifdef MAIN_ANCHOR
 
 		 while(Qcnt)
 			{
+				IWDG_Feed();
 				switch(Que[front].buff[FUNCODE_IDX])
 					{
 						case 0x80:WirelessSyncDataProcess_MA();break;
@@ -484,6 +491,7 @@ int AssignTimeWindow(void)
 //		double tmp=(double)time_stack[timestack_cnt-1]*4/1000;
 //		printf("%d:%f us \r\n",timestack_cnt--,tmp);
 //	}
+	pollSend2PC();
 	return 0;
 }
 
@@ -497,10 +505,50 @@ int TOAdata_process(void)
 	printf("TAG:%d No:%d\r\n",tagnumtmp,idx);
 	return 0;
 }
+
+void pollSend2PC(void)
+{
+	uint8_t i;
+	uint8_t len=17;
+	uint8_t crc=0;
+	uint8_t *pointerP;
+	
+	//
+	send_pc[3]=0x38;
+	send_pc[4]=ANCHOR_NUM;
+	//tag_id
+	send_pc[7]=Que[front].buff[SOURADD];
+	//	send_pc[6]=0x00;
+	send_pc[6]=(Que[front].buff[SOURADD+1]-128);
+	send_pc[8]=0;
+	send_pc[9]=0;
+	send_pc[10]=0;
+	send_pc[11]=0;
+	send_pc[12]=0;
+	send_pc[13]=0;
+	send_pc[14]=0;
+
+	
+	pointerP=&send_pc[2];
+	CRC_ResetDR();
+	while(len--)
+	{
+		CRC_CalcCRC8bits(*pointerP++);
+	}
+	crc=(uint8)CRC_GetCRC();
+	send_pc[19]=crc;
+	while(DMA_transing);
+	DMA_Cmd(DMA1_Channel2, DISABLE);	
+	DMA1_Channel2->CMAR=(uint32_t)send_pc;
+	DMA1_Channel2->CNDTR=20;
+	DMA_transing=1;
+	DMA_Cmd(DMA1_Channel2, ENABLE);	
+	USART_DMACmd(USART1,USART_DMAReq_Tx,ENABLE);
+
+}
 void Send2PC(void)
 {
-	float buff_dis[QUANTITY_ANCHOR];
-	int buff_dis2[QUANTITY_ANCHOR];
+
 	uint8_t i;
 	uint8_t len=17;
 	uint8_t crc=0;
@@ -513,13 +561,21 @@ void Send2PC(void)
 	send_pc[3]=0x38;
 	send_pc[4]=ANCHOR_NUM;
 	//tag_id
-	send_pc[6]=Que[front].buff[SOURADD];
-	send_pc[7]=Que[front].buff[SOURADD+1]-128;
+	send_pc[7]=Que[front].buff[SOURADD];
+//	send_pc[6]=0x00;
+	send_pc[6]=(Que[front].buff[SOURADD+1]-128);
+	
+	//将当前数据赋给一个buff
+	for(i=0;i<QuantityAC;i++)
+	{
+		buff_dis3[i]=buff_dis2[i];
+	}
 	
 	//wearing status
 	send_pc[8]=0x0E;
 	for(i=0;i<QuantityAC;i++)
 	{
+		if(((int)(buff_dis[i]*1000)-buff_dis3[i])<6000&&((int)(buff_dis[i]*1000)-buff_dis3[i])>-6000)
 		buff_dis2[i]=(int)(buff_dis[i]*1000);
 	}
 	send_pc[9]=(uint8)((buff_dis2[0]>>8)&0xff);
@@ -531,6 +587,20 @@ void Send2PC(void)
 	send_pc[13]=(uint8)((buff_dis2[2]>>8)&0xff);
 	send_pc[14]=(uint8)(buff_dis2[2]&0xff);
 	
+//	printf("ar1:%d \t ar2:%d \t ar3:%d \r\n",buff_dis2[0],buff_dis2[1],buff_dis2[2]);
+	
+	if((send_pc[9]==0&&send_pc[10]==0)||(send_pc[11]==0&&send_pc[12]==0)||(send_pc[13]==0&&send_pc[14]==0))
+	{
+		send_pc[8]=0;
+//		send_pc[9]=0;
+//		send_pc[10]=0;
+//		send_pc[11]=0;
+//		send_pc[12]=0;
+//		send_pc[13]=0;
+//		send_pc[14]=0;
+	}
+	
+	
 	pointerP=&send_pc[2];
 	CRC_ResetDR();
 	while(len--)
@@ -539,12 +609,13 @@ void Send2PC(void)
 	}
 	crc=(uint8)CRC_GetCRC();
 	send_pc[19]=crc;
-	send_pc[20]='\r';
-	send_pc[21]='\n';
+//	send_pc[20]='\r';
+//	send_pc[21]='\n';
+
 	while(DMA_transing);
 	DMA_Cmd(DMA1_Channel2, DISABLE);	
 	DMA1_Channel2->CMAR=(uint32_t)send_pc;
-	DMA1_Channel2->CNDTR=22;
+	DMA1_Channel2->CNDTR=20;
 	DMA_transing=1;
 	DMA_Cmd(DMA1_Channel2, ENABLE);	
 	USART_DMACmd(USART1,USART_DMAReq_Tx,ENABLE);
