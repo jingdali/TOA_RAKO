@@ -40,6 +40,7 @@ typedef unsigned long long uint64;
 #define FINAL_MSG_TS_LEN 5
 #define DWT_TIME_UNITS     (1.0/499.2e6/128.0)
 #define INIT_TX_DELAYED_TIME_UUS 1500
+#define TX_DELAYED_TIME_MS 2496000
 /* Speed of light in air, in metres per second. */
 #define SPEED_OF_LIGHT 299702547
 /* Length of the common part of the message (up to and including the function code, see NOTE 3 below). */

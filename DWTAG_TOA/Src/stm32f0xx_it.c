@@ -137,12 +137,15 @@ void SysTick_Handler(void)
 */
 void TIM14_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM14_IRQn 0 */
+//	uint16 htCnt=0;
+//	htCnt=__HAL_TIM_GET_COUNTER(&htim14);
+//	printf("%u\r\n",htCnt);
+//  /* USER CODE BEGIN TIM14_IRQn 0 */
 
   /* USER CODE END TIM14_IRQn 0 */
   HAL_TIM_IRQHandler(&htim14);
   /* USER CODE BEGIN TIM14_IRQn 1 */
-	
+	stopFlag=1;
 
 	}
 		
@@ -299,12 +302,23 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 }
 void RTC_IRQHandler(void)
 {
+	
   /* USER CODE BEGIN RTC_IRQn 0 */
-
   /* USER CODE END RTC_IRQn 0 */
   HAL_RTCEx_WakeUpTimerIRQHandler(&hrtc);
-  /* USER CODE BEGIN RTC_IRQn 1 */
-
+	
+//	stopFlag=1;
+	showCounter = __HAL_TIM_GET_COUNTER(&htim14);
+	//记录到达时间
+	if(stopEnterFlag==1)
+	{
+		htCnt= __HAL_TIM_GET_COUNTER(&htim14)-htCnt;//记录结束时间与起始时间差
+		stopSynFlag=1;
+		stopEnterFlag=0;
+		showCounter = __HAL_TIM_GET_COUNTER(&htim14);
+	}
+	
+//	printf("%d\r\n",__HAL_TIM_GET_COUNTER(&htim14));
   /* USER CODE END RTC_IRQn 1 */
 }
 

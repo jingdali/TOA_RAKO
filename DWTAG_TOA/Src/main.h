@@ -23,6 +23,7 @@
 #define TX_ANT_DLY 16495
 #define RX_ANT_DLY 16495
 #define TAG_ID 2u|0x8000u
+#define STOP_SYN_TIME 512 //用于RTC时钟校准，十分钟同步一次，单位为s
 #if TAG_ID>0x8000u
 #else
 #define TIMEBASE
@@ -77,7 +78,13 @@ extern UART_HandleTypeDef huart1;
 extern volatile unsigned char newdata;
 extern uint8 dw_txseq_num;
 extern uint8 dwiswake;
-
+extern uint16 htCnt;
+extern uint8 stopEnterFlag;
+extern uint8 stopSynFlag;
+extern uint8 stopSynCnt;
+extern uint8 stopFlag;
+extern uint32 counter;
+extern uint16 showCounter;
 extern volatile uint8 isframe_sent;
 extern volatile uint8 istxframe_acked;
 extern volatile uint8 isreceive_To;

@@ -470,6 +470,10 @@ int AssignTimeWindow(void)
 {
 	uint8 tx_resp_time[18]={0x41, 0x88, 0, 0xCA, 0xDE, 0x00, 0x00, 0x01, 0x00, 0x2C, 0, 0, 0, 0};
 //SET_Tpoint();
+	
+	//add by leviscar
+	uint32 dlyTxTime;
+	
 	tx_resp_time[DESTADD]=Que[front].buff[SOURADD];
 	tx_resp_time[DESTADD+1]=Que[front].buff[SOURADD+1];
 //	*(uint32*)(tx_resp_time+10)=msec;
@@ -482,10 +486,29 @@ int AssignTimeWindow(void)
 	dwt_forcetrxoff();
 	dwt_writetxdata(sizeof(tx_resp_time), tx_resp_time, 0); /* Zero offset in TX buffer. */
 	dwt_writetxfctrl(sizeof(tx_resp_time), 0, 0); /* Zero offset in TX buffer, ranging. */
-//GET_Time2Tpoint();
+////GET_Time2Tpoint();
 	dwt_starttx(DWT_START_TX_IMMEDIATE|DWT_RESPONSE_EXPECTED);
 	while(!isframe_sent);
 	isframe_sent=0;
+	
+	//add by leviscar
+	dlyTxTime = dwt_readtxtimestamphi32();//read last Tx time
+	dlyTxTime = dlyTxTime + 0x261600;//0x17CDC00Îª100ms£¬0x261600Îª10ms
+	tx_resp_time[10]=(uint8)(msec);
+	tx_resp_time[11]=(uint8)(msec>>8);
+	tx_resp_time[12]=(uint8)(msec>>16);
+	tx_resp_time[13]=(uint8)(msec>>24);
+	tx_resp_time[14]=(uint8)(TBsyctime);
+	tx_resp_time[15]=(uint8)(TBsyctime>>8);
+	dwt_forcetrxoff();
+	dwt_writetxdata(sizeof(tx_resp_time), tx_resp_time, 0); /* Zero offset in TX buffer. */
+	dwt_writetxfctrl(sizeof(tx_resp_time), 0, 0); /* Zero offset in TX buffer, ranging. */
+	dwt_setdelayedtrxtime(dlyTxTime);
+	dwt_starttx(DWT_START_TX_DELAYED);
+	while(!isframe_sent);
+	isframe_sent=0;
+	
+	
 //	while(timestack_cnt)
 //	{
 //		double tmp=(double)time_stack[timestack_cnt-1]*4/1000;
