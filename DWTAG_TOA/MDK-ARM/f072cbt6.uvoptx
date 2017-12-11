@@ -166,25 +166,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>309</LineNumber>
+          <LineNumber>1014</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134230934</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>F:\鐮斾簩\TOA11_22\TOA_RAKO\DWTAG_TOA\Src\stm32f0xx_it.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>267</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134237082</Address>
+          <Address>134242018</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -193,7 +177,7 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>F:\鐮斾簩\TOA11_22\TOA_RAKO\DWTAG_TOA\Src\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\f072cbt6\../Src/main.c\267</Expression>
+          <Expression></Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -236,6 +220,16 @@
           <count>7</count>
           <WinNumber>1</WinNumber>
           <ItemText>stopCnt</ItemText>
+        </Ww>
+        <Ww>
+          <count>8</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>stopFlag</ItemText>
+        </Ww>
+        <Ww>
+          <count>9</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>flag</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>

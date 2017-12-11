@@ -491,23 +491,23 @@ int AssignTimeWindow(void)
 	while(!isframe_sent);
 	isframe_sent=0;
 	
-	//add by leviscar
-	dlyTxTime = dwt_readtxtimestamphi32();//read last Tx time
-	dlyTxTime = dlyTxTime + 0x261600;//0x17CDC00为100ms，0x261600为10ms
-	tx_resp_time[10]=(uint8)(msec);
-	tx_resp_time[11]=(uint8)(msec>>8);
-	tx_resp_time[12]=(uint8)(msec>>16);
-	tx_resp_time[13]=(uint8)(msec>>24);
-	tx_resp_time[14]=(uint8)(TBsyctime);
-	tx_resp_time[15]=(uint8)(TBsyctime>>8);
-	dwt_forcetrxoff();
-	dwt_writetxdata(sizeof(tx_resp_time), tx_resp_time, 0); /* Zero offset in TX buffer. */
-	dwt_writetxfctrl(sizeof(tx_resp_time), 0, 0); /* Zero offset in TX buffer, ranging. */
-	dwt_setdelayedtrxtime(dlyTxTime);
-	dwt_starttx(DWT_START_TX_DELAYED);
-	while(!isframe_sent);
-	isframe_sent=0;
-	
+//	//add by leviscar
+//	dlyTxTime = dwt_readtxtimestamphi32();//read last Tx time
+//	dlyTxTime = dlyTxTime + 0x261600;//0x17CDC00为100ms，0x261600为10ms
+//	tx_resp_time[10]=(uint8)(msec);
+//	tx_resp_time[11]=(uint8)(msec>>8);
+//	tx_resp_time[12]=(uint8)(msec>>16);
+//	tx_resp_time[13]=(uint8)(msec>>24);
+//	tx_resp_time[14]=(uint8)(TBsyctime);
+//	tx_resp_time[15]=(uint8)(TBsyctime>>8);
+//	dwt_forcetrxoff();
+//	dwt_writetxdata(sizeof(tx_resp_time), tx_resp_time, 0); /* Zero offset in TX buffer. */
+//	dwt_writetxfctrl(sizeof(tx_resp_time), 0, 0); /* Zero offset in TX buffer, ranging. */
+//	dwt_setdelayedtrxtime(dlyTxTime);
+//	dwt_starttx(DWT_START_TX_DELAYED);
+//	while(!isframe_sent);
+//	isframe_sent=0;
+//	
 	
 //	while(timestack_cnt)
 //	{

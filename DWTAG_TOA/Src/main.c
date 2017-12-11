@@ -98,6 +98,7 @@ static void IWDG_Feed(void);
 static void MX_RTC_Init(void);
 static void RTCSet(void);
 static void RTCSync(void);
+static void dw_config_init(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 static void EXTI2_3_IRQHandler_Config(void);
@@ -131,6 +132,7 @@ uint8 tx_poll_msg[PLLMSGLEN] = {0x41, 0x88, 0, 0xCA, 0xDE, 0xFF, 0xFF, 0, 0, 0x8
 uint8 stopEnterFlag=0;
 uint16 htCnt=0;
 uint32 counter;//RTC_wakeup校准值
+uint32 preCounter;
 uint16 showCounter = 0;
 uint8 stopSynFlag =0;//RTC 时间同步标志位
 uint8 stopSynCnt=0;
@@ -206,6 +208,7 @@ int main(void)
 	uint8_t i;
  	uint8 cnt_toa=0;
 	uint16 tagid=TAG_ID;
+	uint8 cirCounter =0;
 	float dis[QUANTITY_ANCHOR];
   /* USER CODE END 1 */
 
@@ -259,9 +262,9 @@ int main(void)
 //		
 //	NRF24L01_TX_Mode();
 	HAL_TIM_Base_Start_IT(&htim14);//tim14開始計時
-//	HAULT_POINT
-//	HAL_TIM_Base_Stop_IT(&htim14);//tim14停止计时
-//	htim14.Instance->CNT=0;//cnt位清零
+	HAULT_POINT
+	HAL_TIM_Base_Stop_IT(&htim14);//tim14停止计时
+	htim14.Instance->CNT=0;//cnt位清零
 //	HAL_TIM_Base_Stop_IT(&htim14);//tim14開始計時	
 	   /**Enable the WakeUp 
     */
@@ -274,18 +277,18 @@ int main(void)
 //		
 //	RTCSync();
 //	RTCSet();
-while(1)
-{
+//while(1)
+//{
+//	
+//	if(stopFlag==1)
+//	{
+//		stopFlag=0;
+//		printf("%d\r\n",showCounter);
+//	}
+//}
 	
-	if(stopFlag==1)
-	{
-		stopFlag=0;
-		printf("%d\r\n",showCounter);
-	}
-}
-	
-	
-//	while(1) 
+//	while(1)
+//	{
 ////		uint32_t wkcnt;
 ////		wkcnt=HAL_RTCEx_GetWakeUpTimer(&hrtc);
 ////		printf("wk=%ul\r\n",wkcnt);
@@ -296,8 +299,13 @@ while(1)
 ////		HAL_RTCEx_DeactivateWakeUpTimer(&hrtc);
 //		SYSCLKConfig_STOP();
 //		printf("wake up\r\n");
+//		if(stopFlag==1)
+//		{
+//			stopFlag=0;
+//			printf("%d\r\n",showCounter);
+//		}
 //	}
-//	reset_DW1000();
+	reset_DW1000();
 	printf("dwreset_OK\r\n");
 	
 	if (dwt_initialise(DWT_LOADUCODE) == DWT_ERROR)
@@ -340,6 +348,7 @@ while(1)
 	dwt_configuresleep(DWT_PRESRV_SLEEP | DWT_CONFIG |DWT_LLDLOAD|DWT_LLD0, DWT_WAKE_WK | DWT_SLP_EN);
 	tim14_int=1;
 	cnt_toa=10;
+	
 //	HAL_TIM_Base_Start_IT(&htim14);//tim14開始計時	
   /* USER CODE END 2 */
 	IWDG_init(40000);
@@ -347,6 +356,8 @@ while(1)
 	IWDG_Feed();
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+	RTCSync();
+	RTCSet();
 
 	// MPU
 	do
@@ -359,7 +370,7 @@ while(1)
 			failtime=0;
 			for(i=0;i<QuantityAC;i++)
 			{
-				IWDG_Feed();
+//				IWDG_Feed();
 				while(failtime!=10)
 				{
 					if(twoway_ranging((uint8)(i+1),&dis[i])!=0)
@@ -368,7 +379,7 @@ while(1)
 					}
 					else
 					{
-						//printf("%d:%3.2f\r\n",i,dis[i]);
+//						printf("%d:%3.2f\r\n",i,dis[i]);
 						break;
 					}
 				}
@@ -386,13 +397,27 @@ while(1)
 			
 			//stm32 stop模式
 			HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
-			SYSCLKConfig_STOP();
+//			SYSCLKConfig_STOP();
+			SystemClock_Config();
+//			dw_config_init();
+			HAL_Init();
+			MX_SPI2_Init();
+			MX_SPI1_Init();
+//			MX_GPIO_Init();
+			delay_init();
 		}
 		else
 		{
 			cnt_toa=0;
 			POLL_TimeWindow();
 			IWDG_Feed();
+			cirCounter++;
+			if(cirCounter==3)
+			{
+				RTCSync();
+				RTCSet();
+				cirCounter=0;
+			}
 			Delay_ms(1000-ACtime%1000);
 			Delay_ms((TAG_ID-0x8000u)*100-3);//每个标签拥有ms的间隔。第一個ms給同步時間信號
 			IWDG_Feed();
@@ -403,6 +428,8 @@ while(1)
 		}
 		while(!stopFlag);
 		stopFlag=0;//tim14 发生中断
+//		while(!tim14_int);
+//		tim14_int=0;//tim14 发生中断
 
 //		HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_SET);//wake up
 //		Delay_us(600);
@@ -410,7 +437,8 @@ while(1)
 //		Delay_ms(3);
 //		dwt_setrxantennadelay(RX_ANT_DLY);
 //		dwt_settxantennadelay(TX_ANT_DLY);
-		IWDG_Feed();
+//		IWDG_Feed();
+		
 		do
 		{
 			HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_SET);//wake up
@@ -419,7 +447,7 @@ while(1)
 			Delay_ms(5);
 			status=0x02&dwt_read32bitreg(SYS_STATUS_ID);
 		}while(!status);
-
+		
 		dwt_setrxantennadelay(RX_ANT_DLY);
 		dwt_settxantennadelay(TX_ANT_DLY);
 		IWDG_Feed();
@@ -821,11 +849,46 @@ void dw_closeack(void)
 	tmp &= ~SYS_CFG_AUTOACK;
   dwt_write32bitreg(SYS_CFG_ID,tmp) ;
 }
+
+void dw_config_init(void)
+{
+	decaIrqStatus_t  stat ;
+	reset_DW1000();
+	stat = decamutexon();// care should be taken that the spi should never use interrupt cause the interrupts are disabled.
+	dwt_configure(&config);
+	dwt_setpanid(pan_id);
+  dwt_seteui(eui);
+  dwt_setaddress16(Tag_ID);
+	//dwt_setleds(DWT_LEDS_ENABLE);//set the led
+	port_set_deca_isr(dwt_isr);		
+	dwt_setcallbacks(&tx_conf_cb, &rx_ok_cb, &rx_to_cb, &rx_err_cb);
+	dwt_setrxantennadelay(RX_ANT_DLY);
+  dwt_settxantennadelay(TX_ANT_DLY);
+	decamutexoff(stat) ;
+	//dw_setARER(1);//使能接收机自动重启
+	//here to get the time window ,function code is 0x2b
+	dwt_enableautoack(5);//使能自动应答
+	dwt_enableframefilter(DWT_FF_DATA_EN|DWT_FF_ACK_EN);//使能帧过滤
+	
+	dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_TXFRS|SYS_STATUS_RXFCG|SYS_STATUS_SLP2INIT);//清除标志位
+	dwt_setinterrupt(0xffff,0);//关闭中断
+	dwt_setinterrupt(DWT_INT_ALLERR|DWT_INT_TFRS|DWT_INT_RFCG|DWT_INT_RFTO,1);//开启中断
+	dwt_setrxaftertxdelay(0);
+	dwt_setrxtimeout(0);
+	//dwt_setpreambledetecttimeout(8);//需要查驗，不確定效果
+	
+//	lp_osc_freq = (XTAL_FREQ_HZ / 2) / dwt_calibratesleepcnt();
+//	sleep_cnt = ((SLEEP_TIME_MS * lp_osc_freq) / 1000) >> 12;	
+//dwt_configuresleepcnt(sleep_cnt);
+	dwt_configuresleep(DWT_PRESRV_SLEEP | DWT_CONFIG |DWT_LLDLOAD|DWT_LLD0, DWT_WAKE_WK | DWT_SLP_EN);
+}
 void POLL_TimeWindow(void)
 {
 	
 	uint8 tx_poll_time[12]={0x41, 0x88, 0, 0xCA, 0xDE, 0x01, 0x00, (uint8)Tag_ID, (uint8)(Tag_ID>>8), 0x2B, 0, 0};//用来查询时间戳的
-	uint8 tx_time_count = 0;
+	uint8 tx_time_count = 0; 
+	uint16 rtcCnt;
+	uint32 preFre =0;
 	dwt_setrxtimeout(800);//设置接受超时
 	dwt_writetxdata(sizeof(tx_poll_time), tx_poll_time, 0);
 	dwt_writetxfctrl(sizeof(tx_poll_time), 0, 0);
@@ -852,17 +915,34 @@ void POLL_TimeWindow(void)
 		isframe_rec=0;		
 		if(rx_buffer[FUNCODE_IDX]==0x2C)
 		{
+//				tx_time_count++;
+//				if(tx_time_count==1){
+//					HAL_TIM_Base_Stop_IT(&htim14);//tim14停止计时
+//					htim14.Instance->CNT=0;//cnt位清零
+//					htim14.Init.Prescaler = 12;
+//					htim14.Init.Period = 1000000;
+//					HAL_TIM_Base_Start_IT(&htim14);//tim14開始計時
+//					rtcCnt = 0;
+//				}
+//				if(tx_time_count==2){
+//					rtcCnt= __HAL_TIM_GET_COUNTER(&htim14);
+//					HAL_TIM_Base_Stop_IT(&htim14);//tim14停止计时
+//					preFre = rtcCnt*1200;
+//					htim14.Instance->CNT=0;//cnt位清零
+//					htim14.Init.Prescaler = (preFre/10000);
+//					htim14.Init.Period = 10000;
+//				}
 				ACtime=rx_buffer[10];
 				ACtime+=(uint32)((rx_buffer[11])<<8);
 				ACtime+=(uint32)((rx_buffer[12])<<16);
 				ACtime+=(uint32)((rx_buffer[13])<<24);
-//				tx_time_count++;
-//				if(tx_time_count==1){
-//					rtcCnt = HAL_RTCEx_GetWakeUpTimer(&hrtc);
+
+//				if(tx_time_count==1)
+//				{
+//					rx_buffer[FUNCODE_IDX]=0;
 //				}
-//				rtcCntDiff = HAL_RTCEx_GetWakeUpTimer(&hrtc)-rtcCnt;
 					
-				printf("tx_time_count\r\n");
+//				printf("1\r\n");
 				//TBsynctime=(uint16)(rx_buffer[14]);
 				//TBsynctime+=(uint16)(rx_buffer[15]<<8);
 				//localtime=ACtime;
@@ -1114,7 +1194,7 @@ void RTCSync(void)
 		HAL_TIM_Base_Stop_IT(&htim14);//tim14停止计时
 		htim14.Instance->CNT=0;//cnt位清零
 		
-		counter = counter*100000/htCnt;//将时间差与10ms作比较，得到1s的校准值
+		counter = counter*10100/htCnt;//将时间差与10ms作比较，得到1s的校准值
 //		if (HAL_RTCEx_SetWakeUpTimer_IT(&hrtc,counter, RTC_WAKEUPCLOCK_RTCCLK_DIV2) != HAL_OK)
 //		{
 //			Error_Handler();
@@ -1136,9 +1216,38 @@ void RTCSet(void)
 		{
 			Error_Handler();
 		}
-		HAL_TIM_Base_Start_IT(&htim14);//tim14開始計時
+//		HAL_TIM_Base_Start_IT(&htim14);//tim14開始計時
 }
 /* USER CODE END 4 */
+
+void RTCSyncInit(void)
+{
+	switch(TAG_ID)
+	{
+		case 0x8001u:
+			preCounter=10030;
+			break;
+		case 0x8002u:
+			preCounter=10030;
+			break;
+		case 0x8003u:
+			preCounter=10030;
+			break;
+		case 0x8004u:
+			preCounter=10030;
+			break;
+		case 0x8005u:
+			preCounter=10030;
+			break;
+		case 0x8006u:
+			preCounter=10100;
+			break;
+		case 0x8007u:
+			preCounter=10030;
+			break;
+		default: break;
+	}
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.

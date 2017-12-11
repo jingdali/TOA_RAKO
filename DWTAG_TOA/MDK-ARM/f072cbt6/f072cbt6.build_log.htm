@@ -26,29 +26,25 @@ Project File Date:  11/30/2017
 
 <h2>Output:</h2>
 Build target 'f072cbt6'
-compiling stm32f0xx_it.c...
-../Src/stm32f0xx_it.c(157): warning:  #177-D: variable "cnt" was declared but never referenced
-        static uint8 cnt=0;
-../Src/stm32f0xx_it.c: 1 warning, 0 errors
 compiling main.c...
-../Src/main.c(301): warning:  #111-D: statement is unreachable
-        printf("dwreset_OK\r\n");
-../Src/main.c(828): warning:  #177-D: variable "tx_time_count" was declared but never referenced
-        uint8 tx_time_count = 0;
-../Src/main.c(1053): warning:  #940-D: missing return statement at end of non-void function "read_mpu"
+../Src/main.c(889): warning:  #177-D: variable "tx_time_count" was declared but never referenced
+        uint8 tx_time_count = 0; 
+../Src/main.c(890): warning:  #177-D: variable "rtcCnt" was declared but never referenced
+        uint16 rtcCnt;
+../Src/main.c(891): warning:  #177-D: variable "preFre" was declared but never referenced
+        uint32 preFre =0;
+../Src/main.c(1133): warning:  #940-D: missing return statement at end of non-void function "read_mpu"
   }
-../Src/main.c(1044): warning:  #177-D: variable "more" was declared but never referenced
+../Src/main.c(1124): warning:  #177-D: variable "more" was declared but never referenced
         unsigned char more;
 ../Src/main.c(58): warning:  #177-D: variable "status_reg" was declared but never referenced
   static uint32 status_reg = 0;
-../Src/main.c(1133): warning:  #177-D: function "RTCSet" was declared but never referenced
-  void RTCSet(void)
-../Src/main.c(1096): warning:  #177-D: function "RTCSync" was declared but never referenced
-  void RTCSync(void)
+../Src/main.c(853): warning:  #177-D: function "dw_config_init" was declared but never referenced
+  void dw_config_init(void)
 ../Src/main.c: 7 warnings, 0 errors
 linking...
-Program Size: Code=23264 RO-data=544 RW-data=456 ZI-data=2192  
-"f072cbt6\f072cbt6.axf" - 0 Error(s), 8 Warning(s).
+Program Size: Code=29896 RO-data=752 RW-data=492 ZI-data=2228  
+"f072cbt6\f072cbt6.axf" - 0 Error(s), 7 Warning(s).
 
 <h2>Software Packages used:</h2>
 
