@@ -468,6 +468,7 @@ int WirelessSyncDataProcess_SA(void)
 }
 int AssignTimeWindow(void)
 {
+	IWDG_Feed();
 	uint8 tx_resp_time[18]={0x41, 0x88, 0, 0xCA, 0xDE, 0x00, 0x00, 0x01, 0x00, 0x2C, 0, 0, 0, 0};
 //SET_Tpoint();
 	

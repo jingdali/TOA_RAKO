@@ -252,7 +252,7 @@ int main(void)
 	EXTI2_3_IRQHandler_Config();
 	tx_poll_msg[SOURADD]=(uint8)tagid;
 	tx_poll_msg[SOURADD+1]=(uint8)(tagid>>8);
-	printf("start");
+	printf("start\r\n");
 	
 //	while(NRF24L01_Check())
 //	{
@@ -261,10 +261,14 @@ int main(void)
 //	printf("24l01 Exist\r\n");
 //		
 //	NRF24L01_TX_Mode();
-	HAL_TIM_Base_Start_IT(&htim14);//tim14開始計時
-	HAULT_POINT
-	HAL_TIM_Base_Stop_IT(&htim14);//tim14停止计时
-	htim14.Instance->CNT=0;//cnt位清零
+
+	Delay_ms(1500);
+	Delay_ms(1500);
+	printf("stop\r\n");
+//	HAL_TIM_Base_Start_IT(&htim14);//tim14開始計時
+//	HAULT_POINT
+//	HAL_TIM_Base_Stop_IT(&htim14);//tim14停止计时
+//	htim14.Instance->CNT=0;//cnt位清零
 //	HAL_TIM_Base_Stop_IT(&htim14);//tim14開始計時	
 	   /**Enable the WakeUp 
     */

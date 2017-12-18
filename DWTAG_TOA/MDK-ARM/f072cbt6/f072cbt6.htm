@@ -3,7 +3,7 @@
 <title>Static Call Graph - [f072cbt6\f072cbt6.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image f072cbt6\f072cbt6.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050106: Last Updated: Fri Dec 08 20:42:50 2017
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050106: Last Updated: Mon Dec 11 16:14:54 2017
 <BR><P>
 <H3>Maximum Stack Usage =        592 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -828,13 +828,11 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[b7]"></a>HAL_TIM_Base_Start_IT</STRONG> (Thumb, 30 bytes, Stack size 0 bytes, stm32f0xx_hal_tim.o(i.HAL_TIM_Base_Start_IT))
-<BR><BR>[Called By]<UL><LI><a href="#[32]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
-<LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTCSync
+<BR><BR>[Called By]<UL><LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTCSync
 </UL>
 
 <P><STRONG><a name="[b8]"></a>HAL_TIM_Base_Stop_IT</STRONG> (Thumb, 58 bytes, Stack size 0 bytes, stm32f0xx_hal_tim.o(i.HAL_TIM_Base_Stop_IT))
-<BR><BR>[Called By]<UL><LI><a href="#[32]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
-<LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTCSync
+<BR><BR>[Called By]<UL><LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTCSync
 </UL>
 
 <P><STRONG><a name="[87]"></a>HAL_TIM_IC_CaptureCallback</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, stm32f0xx_hal_tim.o(i.HAL_TIM_IC_CaptureCallback))
@@ -1794,14 +1792,12 @@ Global Symbols
 <P><STRONG><a name="[4]"></a>going</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, testing.o(i.going))
 <BR>[Address Reference Count : 1]<UL><LI> usmart_config.o(.data)
 </UL>
-<P><STRONG><a name="[32]"></a>main</STRONG> (Thumb, 618 bytes, Stack size 24 bytes, main.o(i.main))
+<P><STRONG><a name="[32]"></a>main</STRONG> (Thumb, 600 bytes, Stack size 24 bytes, main.o(i.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 592<LI>Call Chain = main &rArr; twoway_ranging &rArr; dwt_writetxfctrl &rArr; dwt_write32bitoffsetreg &rArr; dwt_writetodevice &rArr; writetospi &rArr; HAL_SPI_Transmit &rArr; SPI_EndRxTxTransaction &rArr; SPI_WaitFifoStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Receive_IT
 <LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Init
 <LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_WritePin
-<LI><a href="#[b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_Stop_IT
-<LI><a href="#[b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_Start_IT
 <LI><a href="#[f5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PWR_EnterSTOPMode
 <LI><a href="#[8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_init
 <LI><a href="#[f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;reset_DW1000
