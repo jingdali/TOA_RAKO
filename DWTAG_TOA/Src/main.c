@@ -129,14 +129,12 @@ uint8_t MPUdatabuff[5][33];
 unsigned int localtime=0;//本地时间
 uint8_t usart_rx_buff[64];//串口buf
 uint8 tx_poll_msg[PLLMSGLEN] = {0x41, 0x88, 0, 0xCA, 0xDE, 0xFF, 0xFF, 0, 0, 0x80, 0, 0};//時鐘同步時進行廣播閃爍的
-uint8 stopEnterFlag=0;
+uint8 SyncFlag=0;
 uint16 htCnt=0;
-uint32 counter;//RTC_wakeup校准值
+uint32 wakeup_cnt;//RTC_wakeup校准值
 uint32 preCounter;
 uint16 showCounter = 0;
-uint8 stopSynFlag =0;//RTC 时间同步标志位
-uint8 stopSynCnt=0;
-uint8 stopFlag=0;//RTC中断标志位
+uint8 RTC_int =0; //RTC中断标志位
 struct IMUdata_str
 {
 	short gyro_short[3];
@@ -252,63 +250,8 @@ int main(void)
 	EXTI2_3_IRQHandler_Config();
 	tx_poll_msg[SOURADD]=(uint8)tagid;
 	tx_poll_msg[SOURADD+1]=(uint8)(tagid>>8);
-	printf("start\r\n");
-	
-//	while(NRF24L01_Check())
-//	{
-//	printf("24l01 not Exist\r\n");
-//	}
-//	printf("24l01 Exist\r\n");
-//		
-//	NRF24L01_TX_Mode();
-
-	Delay_ms(1500);
-	Delay_ms(1500);
+	Delay_ms(3000);
 	printf("stop\r\n");
-//	HAL_TIM_Base_Start_IT(&htim14);//tim14開始計時
-//	HAULT_POINT
-//	HAL_TIM_Base_Stop_IT(&htim14);//tim14停止计时
-//	htim14.Instance->CNT=0;//cnt位清零
-//	HAL_TIM_Base_Stop_IT(&htim14);//tim14開始計時	
-	   /**Enable the WakeUp 
-    */
-//	RTCSync();
-//	RTCSet();
-//	if (HAL_RTCEx_DeactivateWakeUpTimer(&hrtc)!= HAL_OK)
-//		{
-//			Error_Handler();
-//		}	
-//		
-//	RTCSync();
-//	RTCSet();
-//while(1)
-//{
-//	
-//	if(stopFlag==1)
-//	{
-//		stopFlag=0;
-//		printf("%d\r\n",showCounter);
-//	}
-//}
-	
-//	while(1)
-//	{
-////		uint32_t wkcnt;
-////		wkcnt=HAL_RTCEx_GetWakeUpTimer(&hrtc);
-////		printf("wk=%ul\r\n",wkcnt);
-////		delay_ms(200);
-////		wkcnt=HAL_RTCEx_GetWakeUpTimer(&hrtc);
-////		printf("wk=%ul\r\n",wkcnt);
-//		HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
-////		HAL_RTCEx_DeactivateWakeUpTimer(&hrtc);
-//		SYSCLKConfig_STOP();
-//		printf("wake up\r\n");
-//		if(stopFlag==1)
-//		{
-//			stopFlag=0;
-//			printf("%d\r\n",showCounter);
-//		}
-//	}
 	reset_DW1000();
 	printf("dwreset_OK\r\n");
 	
@@ -360,10 +303,6 @@ int main(void)
 	IWDG_Feed();
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	RTCSync();
-	RTCSet();
-
-	// MPU
 	do
   {
   /* USER CODE END WHILE */
@@ -374,7 +313,7 @@ int main(void)
 			failtime=0;
 			for(i=0;i<QuantityAC;i++)
 			{
-//				IWDG_Feed();
+				IWDG_Feed();
 				while(failtime!=10)
 				{
 					if(twoway_ranging((uint8)(i+1),&dis[i])!=0)
@@ -390,7 +329,6 @@ int main(void)
 					
 			}
 			send2MainAnch(dis,QuantityAC);
-			printf("end \r\n");
 			IWDG_Feed();
 			//Sleep
 			dwt_entersleep();
@@ -401,14 +339,20 @@ int main(void)
 			
 			//stm32 stop模式
 			HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
-//			SYSCLKConfig_STOP();
 			SystemClock_Config();
-//			dw_config_init();
 			HAL_Init();
 			MX_SPI2_Init();
 			MX_SPI1_Init();
 //			MX_GPIO_Init();
 			delay_init();
+			do
+			{
+				HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_SET);//wake up
+				Delay_us(700);
+				HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_RESET);
+				Delay_ms(5);
+				status=0x02&dwt_read32bitreg(SYS_STATUS_ID);
+			}while(!status);//wake up dw1000
 		}
 		else
 		{
@@ -419,38 +363,20 @@ int main(void)
 			if(cirCounter==3)
 			{
 				RTCSync();
-				RTCSet();
 				cirCounter=0;
 			}
 			Delay_ms(1000-ACtime%1000);
 			Delay_ms((TAG_ID-0x8000u)*100-3);//每个标签拥有ms的间隔。第一個ms給同步時間信號
+			RTCSet();
 			IWDG_Feed();
 //			HAL_TIM_Base_Stop_IT(&htim14);
 //			TIM14->CNT=0;
 //			HAL_TIM_Base_Start_IT(&htim14);//tim14開始計時	
 //			tim14_int=0;
 		}
-		while(!stopFlag);
-		stopFlag=0;//tim14 发生中断
 //		while(!tim14_int);
 //		tim14_int=0;//tim14 发生中断
 
-//		HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_SET);//wake up
-//		Delay_us(600);
-//		HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_RESET);
-//		Delay_ms(3);
-//		dwt_setrxantennadelay(RX_ANT_DLY);
-//		dwt_settxantennadelay(TX_ANT_DLY);
-//		IWDG_Feed();
-		
-		do
-		{
-			HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_SET);//wake up
-			Delay_us(700);
-			HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_RESET);
-			Delay_ms(5);
-			status=0x02&dwt_read32bitreg(SYS_STATUS_ID);
-		}while(!status);
 		
 		dwt_setrxantennadelay(RX_ANT_DLY);
 		dwt_settxantennadelay(TX_ANT_DLY);
@@ -1139,9 +1065,9 @@ int read_mpu(int x)//if x = 0 read the fifo but not update buff, if x=1 read and
 void IWDG_init(uint32_t LsiFreq)
 {
 	/*##-3- Configure the IWDG peripheral ######################################*/
-  /* Set counter reload value to obtain 250ms IWDG TimeOut.
-     IWDG counter clock Frequency = LsiFreq / 32
-     Counter Reload Value = 250ms / IWDG counter clock period
+  /* Set RTCcounter reload value to obtain 250ms IWDG TimeOut.
+     IWDG RTCcounter clock Frequency = LsiFreq / 32
+     Counter Reload Value = 250ms / IWDG RTCcounter clock period
                           = 0.25s / (32/LsiFreq)
                           = LsiFreq / (32 * 4)
                           = LsiFreq / 128 */
@@ -1168,7 +1094,7 @@ void IWDG_init(uint32_t LsiFreq)
 void IWDG_Feed(void)
 {
 	
-	/* Refresh IWDG: reload counter */
+	/* Refresh IWDG: reload RTCcounter */
     if (HAL_IWDG_Refresh(&IwdgHandle) != HAL_OK)
     {
       /* Refresh Error */
@@ -1179,79 +1105,41 @@ void IWDG_Feed(void)
 
 void RTCSync(void)
 {
-	stopEnterFlag=1;
-	counter=300;
+	SyncFlag=1;
+	wakeup_cnt=300;
 	//记录起始时间	
-	if (HAL_RTCEx_SetWakeUpTimer_IT(&hrtc,counter, RTC_WAKEUPCLOCK_RTCCLK_DIV2) != HAL_OK)
+	if (HAL_RTCEx_SetWakeUpTimer_IT(&hrtc,wakeup_cnt, RTC_WAKEUPCLOCK_RTCCLK_DIV2) != HAL_OK)
 	{
 		Error_Handler();
 	}
+	HAL_TIM_Base_Stop_IT(&htim14);//tim14停止计时
+	htim14.Instance->CNT=0;//cnt位清零
 	HAL_TIM_Base_Start_IT(&htim14);//tim14開始計時
-	htCnt= __HAL_TIM_GET_COUNTER(&htim14);
-	printf("%d\r\n",htCnt);
-	while(!stopSynFlag);
+	while(!RTC_int);
+	RTC_int =0;
 	//校准
-	if(stopSynFlag==1)
+	HAL_TIM_Base_Stop_IT(&htim14);//tim14停止计时
+	htim14.Instance->CNT=0;//cnt位清零
+	wakeup_cnt = wakeup_cnt*10100/htCnt;//将时间差与10ms作比较，得到1s的校准值
+		
+	if (HAL_RTCEx_DeactivateWakeUpTimer(&hrtc)!= HAL_OK)
 	{
-		
-//		htCnt= __HAL_TIM_GET_COUNTER(&htim14)-htCnt;//记录结束时间与起始时间差
-		HAL_TIM_Base_Stop_IT(&htim14);//tim14停止计时
-		htim14.Instance->CNT=0;//cnt位清零
-		
-		counter = counter*10100/htCnt;//将时间差与10ms作比较，得到1s的校准值
-//		if (HAL_RTCEx_SetWakeUpTimer_IT(&hrtc,counter, RTC_WAKEUPCLOCK_RTCCLK_DIV2) != HAL_OK)
-//		{
-//			Error_Handler();
-//		}
-			
-		if (HAL_RTCEx_DeactivateWakeUpTimer(&hrtc)!= HAL_OK)
-		{
-			Error_Handler();
-		}
-		printf("counter:%d\r\n",counter);
-		stopSynFlag =0;
+		Error_Handler();
 	}
+	
+	SyncFlag=0;
 }
 
 
 void RTCSet(void)
 {
-		if (HAL_RTCEx_SetWakeUpTimer_IT(&hrtc,counter, RTC_WAKEUPCLOCK_RTCCLK_DIV2) != HAL_OK)
+		if (HAL_RTCEx_SetWakeUpTimer_IT(&hrtc,wakeup_cnt, RTC_WAKEUPCLOCK_RTCCLK_DIV2) != HAL_OK)
 		{
 			Error_Handler();
 		}
-//		HAL_TIM_Base_Start_IT(&htim14);//tim14開始計時
 }
 /* USER CODE END 4 */
 
-void RTCSyncInit(void)
-{
-	switch(TAG_ID)
-	{
-		case 0x8001u:
-			preCounter=10030;
-			break;
-		case 0x8002u:
-			preCounter=10030;
-			break;
-		case 0x8003u:
-			preCounter=10030;
-			break;
-		case 0x8004u:
-			preCounter=10030;
-			break;
-		case 0x8005u:
-			preCounter=10030;
-			break;
-		case 0x8006u:
-			preCounter=10100;
-			break;
-		case 0x8007u:
-			preCounter=10030;
-			break;
-		default: break;
-	}
-}
 
 /**
   * @brief  This function is executed in case of error occurrence.

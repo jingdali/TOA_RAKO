@@ -43,7 +43,6 @@ extern uint8_t usart_rx_buff[64];
 extern uint8_t USART_tmp;
 extern unsigned int localtime;
 extern usart_bitfield USART_STA;
-uint8 flag=0;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -145,7 +144,6 @@ void TIM14_IRQHandler(void)
   /* USER CODE END TIM14_IRQn 0 */
   HAL_TIM_IRQHandler(&htim14);
   /* USER CODE BEGIN TIM14_IRQn 1 */
-//	stopFlag=1;
 
 	}
 		
@@ -306,17 +304,11 @@ void RTC_IRQHandler(void)
   /* USER CODE BEGIN RTC_IRQn 0 */
   /* USER CODE END RTC_IRQn 0 */
   HAL_RTCEx_WakeUpTimerIRQHandler(&hrtc);
-	flag=!flag;
-//	printf("flag\r\n");
-	stopFlag=1;
-	showCounter = __HAL_TIM_GET_COUNTER(&htim14);
+	RTC_int=1;
 	//记录到达时间
-	if(stopEnterFlag==1)
+	if(SyncFlag==1)
 	{
-		htCnt= __HAL_TIM_GET_COUNTER(&htim14)-htCnt;//记录结束时间与起始时间差
-		stopSynFlag=1;
-		stopEnterFlag=0;
-		showCounter = __HAL_TIM_GET_COUNTER(&htim14);
+		htCnt= __HAL_TIM_GET_COUNTER(&htim14);//记录结束时间与起始时间差
 	}
 	
 //	printf("%d\r\n",__HAL_TIM_GET_COUNTER(&htim14));

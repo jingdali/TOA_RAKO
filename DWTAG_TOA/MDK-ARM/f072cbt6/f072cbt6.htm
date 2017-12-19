@@ -3,7 +3,7 @@
 <title>Static Call Graph - [f072cbt6\f072cbt6.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image f072cbt6\f072cbt6.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050106: Last Updated: Mon Dec 11 16:14:54 2017
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Tue Dec 19 11:24:05 2017
 <BR><P>
 <H3>Maximum Stack Usage =        592 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -827,11 +827,11 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[83]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_Init
 </UL>
 
-<P><STRONG><a name="[b7]"></a>HAL_TIM_Base_Start_IT</STRONG> (Thumb, 30 bytes, Stack size 0 bytes, stm32f0xx_hal_tim.o(i.HAL_TIM_Base_Start_IT))
+<P><STRONG><a name="[b8]"></a>HAL_TIM_Base_Start_IT</STRONG> (Thumb, 30 bytes, Stack size 0 bytes, stm32f0xx_hal_tim.o(i.HAL_TIM_Base_Start_IT))
 <BR><BR>[Called By]<UL><LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTCSync
 </UL>
 
-<P><STRONG><a name="[b8]"></a>HAL_TIM_Base_Stop_IT</STRONG> (Thumb, 58 bytes, Stack size 0 bytes, stm32f0xx_hal_tim.o(i.HAL_TIM_Base_Stop_IT))
+<P><STRONG><a name="[b7]"></a>HAL_TIM_Base_Stop_IT</STRONG> (Thumb, 58 bytes, Stack size 0 bytes, stm32f0xx_hal_tim.o(i.HAL_TIM_Base_Stop_IT))
 <BR><BR>[Called By]<UL><LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTCSync
 </UL>
 
@@ -1059,7 +1059,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_Init
 </UL>
 
-<P><STRONG><a name="[14]"></a>RTC_IRQHandler</STRONG> (Thumb, 90 bytes, Stack size 8 bytes, stm32f0xx_it.o(i.RTC_IRQHandler))
+<P><STRONG><a name="[14]"></a>RTC_IRQHandler</STRONG> (Thumb, 34 bytes, Stack size 8 bytes, stm32f0xx_it.o(i.RTC_IRQHandler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = RTC_IRQHandler &rArr; HAL_RTCEx_WakeUpTimerIRQHandler
 </UL>
 <BR>[Calls]<UL><LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTCEx_WakeUpTimerIRQHandler
@@ -1214,12 +1214,11 @@ Global Symbols
 <LI><a href="#[2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;NRF_Test
 <LI><a href="#[32]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 <LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Error_Handler
-<LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTCSync
 <LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_RxCpltCallback
 <LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_PeriodElapsedCallback
-<LI><a href="#[a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_exe
 <LI><a href="#[107]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_sys_cmd_exe
 <LI><a href="#[b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_scan
+<LI><a href="#[a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_exe
 </UL>
 
 <P><STRONG><a name="[11f]"></a>__c89printf</STRONG> (Thumb, 0 bytes, Stack size 24 bytes, printfa.o(i.__0printf), UNUSED)
@@ -1234,9 +1233,9 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = __ARM_common_switch8
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;NRF_Test
+<LI><a href="#[107]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_sys_cmd_exe
 <LI><a href="#[a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_exe
 <LI><a href="#[c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_dwt_enableclocks
-<LI><a href="#[107]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_sys_cmd_exe
 </UL>
 
 <P><STRONG><a name="[121]"></a>__scatterload_copy</STRONG> (Thumb, 14 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_copy), UNUSED)
@@ -1792,7 +1791,7 @@ Global Symbols
 <P><STRONG><a name="[4]"></a>going</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, testing.o(i.going))
 <BR>[Address Reference Count : 1]<UL><LI> usmart_config.o(.data)
 </UL>
-<P><STRONG><a name="[32]"></a>main</STRONG> (Thumb, 600 bytes, Stack size 24 bytes, main.o(i.main))
+<P><STRONG><a name="[32]"></a>main</STRONG> (Thumb, 562 bytes, Stack size 24 bytes, main.o(i.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 592<LI>Call Chain = main &rArr; twoway_ranging &rArr; dwt_writetxfctrl &rArr; dwt_write32bitoffsetreg &rArr; dwt_writetodevice &rArr; writetospi &rArr; HAL_SPI_Transmit &rArr; SPI_EndRxTxTransaction &rArr; SPI_WaitFifoStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Receive_IT
@@ -1956,11 +1955,11 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 200<LI>Call Chain = usmart_exe &rArr; usmart_get_fname
 </UL>
 <BR>[Calls]<UL><LI><a href="#[af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_common_switch8
+<LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_reset_runtime
 <LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_get_runtime
 <LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_uidivmod
 <LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_get_parmpos
 <LI><a href="#[fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_get_fname
-<LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_reset_runtime
 <LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> usmart_config.o(.data)
@@ -1968,8 +1967,8 @@ Global Symbols
 <P><STRONG><a name="[103]"></a>usmart_get_aparm</STRONG> (Thumb, 214 bytes, Stack size 20 bytes, usmart_str.o(i.usmart_get_aparm))
 <BR><BR>[Stack]<UL><LI>Max Depth = 20<LI>Call Chain = usmart_get_aparm
 </UL>
-<BR>[Called By]<UL><LI><a href="#[fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_get_fparam
-<LI><a href="#[107]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_sys_cmd_exe
+<BR>[Called By]<UL><LI><a href="#[107]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_sys_cmd_exe
+<LI><a href="#[fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_get_fparam
 </UL>
 
 <P><STRONG><a name="[109]"></a>usmart_get_cmdname</STRONG> (Thumb, 54 bytes, Stack size 8 bytes, usmart_str.o(i.usmart_get_cmdname))
@@ -1984,19 +1983,19 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[102]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_search_nextc
 <LI><a href="#[fd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_strcmp
 </UL>
-<BR>[Called By]<UL><LI><a href="#[a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_exe
+<BR>[Called By]<UL><LI><a href="#[107]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_sys_cmd_exe
+<LI><a href="#[a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_exe
 <LI><a href="#[9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_cmd_rec
-<LI><a href="#[107]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_sys_cmd_exe
 </UL>
 
 <P><STRONG><a name="[fe]"></a>usmart_get_fparam</STRONG> (Thumb, 266 bytes, Stack size 240 bytes, usmart_str.o(i.usmart_get_fparam))
 <BR><BR>[Stack]<UL><LI>Max Depth = 276<LI>Call Chain = usmart_get_fparam &rArr; usmart_str2num &rArr; usmart_pow
 </UL>
-<BR>[Calls]<UL><LI><a href="#[105]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_strlen
+<BR>[Calls]<UL><LI><a href="#[103]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_get_aparm
+<LI><a href="#[105]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_strlen
 <LI><a href="#[106]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_strcopy
 <LI><a href="#[104]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_str2num
 <LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_get_parmpos
-<LI><a href="#[103]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_get_aparm
 </UL>
 <BR>[Called By]<UL><LI><a href="#[9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_cmd_rec
 </UL>
@@ -2042,14 +2041,14 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[108]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_pow
 </UL>
-<BR>[Called By]<UL><LI><a href="#[fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_get_fparam
-<LI><a href="#[107]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_sys_cmd_exe
+<BR>[Called By]<UL><LI><a href="#[107]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_sys_cmd_exe
+<LI><a href="#[fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_get_fparam
 </UL>
 
 <P><STRONG><a name="[fd]"></a>usmart_strcmp</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, usmart_str.o(i.usmart_strcmp))
-<BR><BR>[Called By]<UL><LI><a href="#[9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_cmd_rec
+<BR><BR>[Called By]<UL><LI><a href="#[107]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_sys_cmd_exe
+<LI><a href="#[9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_cmd_rec
 <LI><a href="#[fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_get_fname
-<LI><a href="#[107]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_sys_cmd_exe
 </UL>
 
 <P><STRONG><a name="[106]"></a>usmart_strcopy</STRONG> (Thumb, 24 bytes, Stack size 0 bytes, usmart_str.o(i.usmart_strcopy))
@@ -2064,11 +2063,11 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 120<LI>Call Chain = usmart_sys_cmd_exe &rArr; usmart_get_fname
 </UL>
 <BR>[Calls]<UL><LI><a href="#[af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_common_switch8
+<LI><a href="#[103]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_get_aparm
 <LI><a href="#[fd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_strcmp
 <LI><a href="#[104]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_str2num
 <LI><a href="#[fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_get_fname
 <LI><a href="#[109]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_get_cmdname
-<LI><a href="#[103]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_get_aparm
 <LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_scan
@@ -2244,21 +2243,20 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[32]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[b6]"></a>RTCSync</STRONG> (Thumb, 148 bytes, Stack size 8 bytes, main.o(i.RTCSync))
+<P><STRONG><a name="[b6]"></a>RTCSync</STRONG> (Thumb, 130 bytes, Stack size 8 bytes, main.o(i.RTCSync))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = RTCSync &rArr; HAL_RTCEx_SetWakeUpTimer_IT
 </UL>
-<BR>[Calls]<UL><LI><a href="#[b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_Stop_IT
-<LI><a href="#[b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_Start_IT
+<BR>[Calls]<UL><LI><a href="#[b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_Stop_IT
+<LI><a href="#[b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_Start_IT
 <LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTCEx_SetWakeUpTimer_IT
 <LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTCEx_DeactivateWakeUpTimer
 <LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Error_Handler
 <LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_uidivmod
-<LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[32]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[cc]"></a>_fp_digits</STRONG> (Thumb, 316 bytes, Stack size 56 bytes, printfa.o(i._fp_digits), UNUSED)
+<P><STRONG><a name="[cc]"></a>_fp_digits</STRONG> (Thumb, 344 bytes, Stack size 64 bytes, printfa.o(i._fp_digits), UNUSED)
 <BR><BR>[Calls]<UL><LI><a href="#[47]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dmul
 <LI><a href="#[48]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
 <LI><a href="#[40]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd

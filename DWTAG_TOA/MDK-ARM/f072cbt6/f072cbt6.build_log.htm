@@ -3,66 +3,130 @@
 <pre>
 <h1>礦ision Build Log</h1>
 <h2>Tool Versions:</h2>
-IDE-Version: μVision V5.14.0.0
-Copyright (C) 2015 ARM Ltd and ARM Germany GmbH. All rights reserved.
-License Information: pi Microsoft, Microsoft, LIC=Y2BKP-M8X7S-QF0IY-I9F2K-3ATNX-YDDUH
+IDE-Version: μVision V5.22.0.0
+Copyright (C) 2016 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: Roger Roger, Roger, LIC=0VR63-ALYMU-PFRIX-HN54F-C3LTW-E7M2D
  
 Tool Versions:
-Toolchain:       MDK-ARM Professional  Version: 5.14.0.0
-Toolchain Path:  D:\Keil_v5\ARM\ARMCC\Bin
-C Compiler:      Armcc.exe V5.05 update 1 (build 106)
-Assembler:       Armasm.exe V5.05 update 1 (build 106)
-Linker/Locator:  ArmLink.exe V5.05 update 1 (build 106)
-Library Manager: ArmAr.exe V5.05 update 1 (build 106)
-Hex Converter:   FromElf.exe V5.05 update 1 (build 106)
-CPU DLL:         SARMCM3.DLL V5.14.0.0
-Dialog DLL:      DARMCM1.DLL V1.12.0.0
-Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V2.0.14.0_KEIL
-Dialog DLL:      TARMCM1.DLL V1.9.0.0
+Toolchain:       MDK-ARM Professional  Version: 5.22
+Toolchain Path:  D:\Program Files\keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 update 4 (build 422)
+Assembler:       Armasm.exe V5.06 update 4 (build 422)
+Linker/Locator:  ArmLink.exe V5.06 update 4 (build 422)
+Library Manager: ArmAr.exe V5.06 update 4 (build 422)
+Hex Converter:   FromElf.exe V5.06 update 4 (build 422)
+CPU DLL:         SARMCM3.DLL V5.22
+Dialog DLL:      DARMCM1.DLL V1.15.0.0
+Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V2.0.18.0
+Dialog DLL:      TARMCM1.DLL V1.11.0.0
  
 <h2>Project:</h2>
-F:\研二\TOA11_22\TOA_RAKO\DWTAG_TOA\MDK-ARM\f072cbt6.uvprojx
-Project File Date:  11/30/2017
+F:\STM32_Projects\Cube\TOA_RAKO\DWTAG_TOA\MDK-ARM\f072cbt6.uvprojx
+Project File Date:  12/19/2017
 
 <h2>Output:</h2>
-Build target 'f072cbt6'
+*** Using Compiler 'V5.06 update 4 (build 422)', folder: 'D:\Program Files\keil_v5\ARM\ARMCC\Bin'
+Rebuild target 'f072cbt6'
+compiling stm32f0xx_hal_tim.c...
+compiling stm32f0xx_hal_dma.c...
+compiling stm32f0xx_hal_flash.c...
+compiling stm32f0xx_hal_i2c_ex.c...
+compiling stm32f0xx_hal_uart.c...
+compiling stm32f0xx_hal_i2c.c...
+compiling stm32f0xx_hal_pwr_ex.c...
+compiling stm32f0xx_hal_gpio.c...
+compiling stm32f0xx_hal_rcc_ex.c...
+compiling stm32f0xx_hal_rcc.c...
+compiling stm32f0xx_hal_uart_ex.c...
+compiling stm32f0xx_hal.c...
+compiling stm32f0xx_hal_flash_ex.c...
+compiling stm32f0xx_hal_tim_ex.c...
+compiling stm32f0xx_hal_pwr.c...
+compiling stm32f0xx_hal_cortex.c...
+compiling stm32f0xx_hal_spi.c...
+compiling stm32f0xx_hal_spi_ex.c...
+compiling stm32f0xx_hal_rtc.c...
+compiling stm32f0xx_hal_rtc_ex.c...
+compiling stm32f0xx_hal_iwdg.c...
+compiling system_stm32f0xx.c...
+assembling startup_stm32f072xb.s...
+compiling stm32f0xx_it.c...
+../Src/stm32f0xx_it.c(155): warning:  #177-D: variable "cnt"  was declared but never referenced
+        static uint8 cnt=0;
+../Src/stm32f0xx_it.c: 1 warning, 0 errors
+compiling stm32f0xx_hal_msp.c...
 compiling main.c...
-../Src/main.c(893): warning:  #177-D: variable "tx_time_count" was declared but never referenced
+../Src/main.c(819): warning:  #177-D: variable "tx_time_count"  was declared but never referenced
         uint8 tx_time_count = 0; 
-../Src/main.c(894): warning:  #177-D: variable "rtcCnt" was declared but never referenced
+../Src/main.c(820): warning:  #177-D: variable "rtcCnt"  was declared but never referenced
         uint16 rtcCnt;
-../Src/main.c(895): warning:  #177-D: variable "preFre" was declared but never referenced
+../Src/main.c(821): warning:  #177-D: variable "preFre"  was declared but never referenced
         uint32 preFre =0;
-../Src/main.c(1137): warning:  #940-D: missing return statement at end of non-void function "read_mpu"
+../Src/main.c(1063): warning:  #940-D: missing return statement at end of non-void function "read_mpu" 
   }
-../Src/main.c(1128): warning:  #177-D: variable "more" was declared but never referenced
+../Src/main.c(1054): warning:  #177-D: variable "more"  was declared but never referenced
         unsigned char more;
-../Src/main.c(58): warning:  #177-D: variable "status_reg" was declared but never referenced
+../Src/main.c(58): warning:  #177-D: variable "status_reg"  was declared but never referenced
   static uint32 status_reg = 0;
-../Src/main.c(857): warning:  #177-D: function "dw_config_init" was declared but never referenced
+../Src/main.c(783): warning:  #177-D: function "dw_config_init"  was declared but never referenced
   void dw_config_init(void)
 ../Src/main.c: 7 warnings, 0 errors
+compiling delay.c...
+compiling Testing.c...
+compiling deca_callback.c...
+..\Drivers\Hardware\Platform_deca\deca_callback.c(28): warning:  #550-D: variable "status"  was set but never used
+        uint32 status;
+..\Drivers\Hardware\Platform_deca\deca_callback.c: 1 warning, 0 errors
+compiling deca_mutex.c...
+compiling deca_sleep.c...
+compiling deca_spi.c...
+compiling dw1000.c...
+compiling deca_device.c...
+..\Drivers\Hardware\decadriver\deca_device.c(1360): warning:  #68-D: integer conversion resulted in a change of sign
+          return 
+WT_ERROR;
+..\Drivers\Hardware\decadriver\deca_device.c(1493): warning:  #68-D: integer conversion resulted in a change of sign
+          return 
+WT_ERROR;
+..\Drivers\Hardware\decadriver\deca_device.c: 2 warnings, 0 errors
+compiling deca_params_init.c...
+compiling rf24l01.c...
+..\Drivers\Hardware\NRF24l01\rf24l01.c(61): warning:  #550-D: variable "status"  was set but never used
+        uint8_t status,value;
+..\Drivers\Hardware\NRF24l01\rf24l01.c(106): warning:  #177-D: variable "buff"  was declared but never referenced
+        uint8_t *buff;
+..\Drivers\Hardware\NRF24l01\rf24l01.c: 2 warnings, 0 errors
+compiling usmart.c...
+compiling usmart_config.c...
+compiling usmart_str.c...
+compiling mpu9250.c...
+..\Drivers\Hardware\MPL\mpu9250.c(11): warning:  #177-D: variable "compass_pdata"  was declared but never referenced
+  static struct platform_data_s compass_pdata = {
+..\Drivers\Hardware\MPL\mpu9250.c: 1 warning, 0 errors
+compiling inv_mpu.c...
+compiling inv_mpu_dmp_motion_driver.c...
+compiling I2C.c...
 linking...
-Program Size: Code=29880 RO-data=752 RW-data=492 ZI-data=2228  
-"f072cbt6\f072cbt6.axf" - 0 Error(s), 7 Warning(s).
+Program Size: Code=29744 RO-data=752 RW-data=484 ZI-data=2228  
+"f072cbt6\f072cbt6.axf" - 0 Error(s), 14 Warning(s).
 
 <h2>Software Packages used:</h2>
 
 Package Vendor: ARM
-                http://www.keil.com/pack/ARM.CMSIS.4.2.0.pack
-                ARM::CMSIS:CORE:3.40.0
+                http://www.keil.com/pack/ARM.CMSIS.5.0.1.pack
+                ARM::CMSIS:CORE:5.0.1
                 CMSIS (Cortex Microcontroller Software Interface Standard)
-   * Component: CORE Version: 3.40.0
+   * Component: CORE Version: 5.0.1
 
 <h2>Collection of Component include folders:</h2>
-  F:\研二\TOA11_22\TOA_RAKO\DWTAG_TOA\MDK-ARM\RTE
-  D:\Keil_v5\ARM\PACK\ARM\CMSIS\4.2.0\CMSIS\Include
-  D:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.5.0
+  F:\STM32_Projects\Cube\TOA_RAKO\DWTAG_TOA\MDK-ARM\RTE\_f072cbt6
+  D:\Program Files\keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include
+  D:\Program Files\keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.5.0\Device\Include
 
 <h2>Collection of Component Files used:</h2>
 
-   * Component: ARM::CMSIS:CORE:3.40.0
-      Source file:   CMSIS\UserCodeTemplates\ARM\ITM_Retarget.c
+   * Component: ARM::CMSIS:CORE:5.0.1
+Build Time Elapsed:  00:01:49
 </pre>
 </body>
 </html>
