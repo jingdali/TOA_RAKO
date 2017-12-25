@@ -88,4 +88,5 @@ extern volatile uint8 isframe_rec;
 extern volatile uint8 isack_sent;
 extern uint8 rx_buffer[];
 extern volatile uint8 tim14_int;
+extern uint8 mpusleepcnt;
 #endif

@@ -99,6 +99,7 @@ static void MX_RTC_Init(void);
 static void RTCSet(void);
 static void RTCSync(void);
 static void dw_config_init(void);
+static void MpuSleepCheck(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 static void EXTI2_3_IRQHandler_Config(void);
@@ -112,6 +113,7 @@ int read_mpu(int x);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+#define ABS(x) (x>0?x:-x)
 static uint16 pan_id = 0xDECA;
 static uint8 eui[] = {'A', 'C', 'K', 'D', 'A', 'T', 'R', 'X'};
 
@@ -134,6 +136,7 @@ uint16 htCnt=0;
 uint32 wakeup_cnt;//RTC_wakeup校准值
 uint32 preCounter;
 uint16 showCounter = 0;
+uint8 cnt_toa=0;
 uint8 RTC_int =0; //RTC中断标志位
 struct IMUdata_str
 {
@@ -141,7 +144,6 @@ struct IMUdata_str
 	short accel_short[3];
 	long quat[4];
 }IMUdata[10];
-	
 uint8 dw_txseq_num=1;
 usart_bitfield USART_STA={
 	0,
@@ -204,7 +206,6 @@ int main(void)
 //	uint8_t j,key,flag,MPUdatacnt=0;
 	uint32 status;
 	uint8_t i;
- 	uint8 cnt_toa=0;
 	uint16 tagid=TAG_ID;
 	uint8 cirCounter =0;
 	float dis[QUANTITY_ANCHOR];
@@ -240,63 +241,21 @@ int main(void)
 
 	SPI1->CR1|=SPI_CR1_SPE;//nrf_SPI，doesn'e use hal lib
 	//disable systick interrupt , I will use the systick in IIC. The hal_delay is strong defined in delay.c
-
 	delay_init();
 	usmart_init(48);//in this case, parameter is useless
 	HAL_UART_Receive_IT(&huart1, usart_rx_buff, 64);
-	
 	EXTI0_1_IRQHandler_Config();
-	EXTI->PR = 0x7bffff;//clear pending bits
 	EXTI2_3_IRQHandler_Config();
+	EXTI->PR = 0x7bffff;//clear pending bits
 	tx_poll_msg[SOURADD]=(uint8)tagid;
 	tx_poll_msg[SOURADD+1]=(uint8)(tagid>>8);
-	Delay_ms(3000);
-	printf("stop\r\n");
-	reset_DW1000();
-	printf("dwreset_OK\r\n");
-	
-	if (dwt_initialise(DWT_LOADUCODE) == DWT_ERROR)
-	{
-			printf("INIT FAILED\r\n");
-			while (1)
-			{ };
-	}
-	else
-	{
-		printf("dwt_initialised\r\n");
-	}
-
-	stat = decamutexon();// care should be taken that the spi should never use interrupt cause the interrupts are disabled.
-	dwt_configure(&config);
-	dwt_setpanid(pan_id);
-  dwt_seteui(eui);
-  dwt_setaddress16(Tag_ID);
-	//dwt_setleds(DWT_LEDS_ENABLE);//set the led
-	port_set_deca_isr(dwt_isr);		
-	dwt_setcallbacks(&tx_conf_cb, &rx_ok_cb, &rx_to_cb, &rx_err_cb);
-	dwt_setrxantennadelay(RX_ANT_DLY);
-  dwt_settxantennadelay(TX_ANT_DLY);
-	decamutexoff(stat) ;
-	//dw_setARER(1);//使能接收机自动重启
-	//here to get the time window ,function code is 0x2b
-	dwt_enableautoack(5);//使能自动应答
-	dwt_enableframefilter(DWT_FF_DATA_EN|DWT_FF_ACK_EN);//使能帧过滤
-	
-	dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_TXFRS|SYS_STATUS_RXFCG|SYS_STATUS_SLP2INIT);//清除标志位
-	dwt_setinterrupt(0xffff,0);//关闭中断
-	dwt_setinterrupt(DWT_INT_ALLERR|DWT_INT_TFRS|DWT_INT_RFCG|DWT_INT_RFTO,1);//开启中断
-	dwt_setrxaftertxdelay(0);
-	dwt_setrxtimeout(0);
-	//dwt_setpreambledetecttimeout(8);//需要查驗，不確定效果
-	
-//	lp_osc_freq = (XTAL_FREQ_HZ / 2) / dwt_calibratesleepcnt();
-//	sleep_cnt = ((SLEEP_TIME_MS * lp_osc_freq) / 1000) >> 12;	
-//dwt_configuresleepcnt(sleep_cnt);
-	dwt_configuresleep(DWT_PRESRV_SLEEP | DWT_CONFIG |DWT_LLDLOAD|DWT_LLD0, DWT_WAKE_WK | DWT_SLP_EN);
+	Delay_ms(3000);//wait a while for downloading programe
+	dw_config_init();//init dw1000
 	tim14_int=1;
 	cnt_toa=10;
-	
-//	HAL_TIM_Base_Start_IT(&htim14);//tim14開始計時	
+	//set the lp mode
+	MPU9250_Init();
+	mpu_lp_accel_mode(1);
   /* USER CODE END 2 */
 	IWDG_init(40000);
 //  /* USER CODE END 2 */
@@ -336,7 +295,6 @@ int main(void)
 			//stm32 sleep模式
 //			HAL_PWR_DisableSleepOnExit();//sleep now
 //			HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
-			
 			//stm32 stop模式
 			HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 			SystemClock_Config();
@@ -345,14 +303,8 @@ int main(void)
 			MX_SPI1_Init();
 //			MX_GPIO_Init();
 			delay_init();
-			do
-			{
-				HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_SET);//wake up
-				Delay_us(700);
-				HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_RESET);
-				Delay_ms(5);
-				status=0x02&dwt_read32bitreg(SYS_STATUS_ID);
-			}while(!status);//wake up dw1000
+			MpuSleepCheck();
+			
 		}
 		else
 		{
@@ -365,6 +317,7 @@ int main(void)
 				RTCSync();
 				cirCounter=0;
 			}
+			dwt_entersleep();
 			Delay_ms(1000-ACtime%1000);
 			Delay_ms((TAG_ID-0x8000u)*100-3);//每个标签拥有ms的间隔。第一個ms給同步時間信號
 			RTCSet();
@@ -377,7 +330,14 @@ int main(void)
 //		while(!tim14_int);
 //		tim14_int=0;//tim14 发生中断
 
-		
+		do
+		{
+			HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_SET);//wake up
+			Delay_us(700);
+			HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_RESET);
+			Delay_ms(5);
+			status=0x02&dwt_read32bitreg(SYS_STATUS_ID);
+		}while(!status);//wake up dw1000
 		dwt_setrxantennadelay(RX_ANT_DLY);
 		dwt_settxantennadelay(TX_ANT_DLY);
 		IWDG_Feed();
@@ -784,6 +744,16 @@ void dw_config_init(void)
 {
 	decaIrqStatus_t  stat ;
 	reset_DW1000();
+	if (dwt_initialise(DWT_LOADUCODE) == DWT_ERROR)
+	{
+			printf("INIT FAILED\r\n");
+			while (1)
+			{ };
+	}
+	else
+	{
+		printf("dwt_initialised\r\n");
+	}
 	stat = decamutexon();// care should be taken that the spi should never use interrupt cause the interrupts are disabled.
 	dwt_configure(&config);
 	dwt_setpanid(pan_id);
@@ -817,8 +787,6 @@ void POLL_TimeWindow(void)
 	
 	uint8 tx_poll_time[12]={0x41, 0x88, 0, 0xCA, 0xDE, 0x01, 0x00, (uint8)Tag_ID, (uint8)(Tag_ID>>8), 0x2B, 0, 0};//用来查询时间戳的
 	uint8 tx_time_count = 0; 
-	uint16 rtcCnt;
-	uint32 preFre =0;
 	dwt_setrxtimeout(800);//设置接受超时
 	dwt_writetxdata(sizeof(tx_poll_time), tx_poll_time, 0);
 	dwt_writetxfctrl(sizeof(tx_poll_time), 0, 0);
@@ -1051,15 +1019,16 @@ int send2MainAnch(float *data,int len)//發送數據給主機站
 }
 int read_mpu(int x)//if x = 0 read the fifo but not update buff, if x=1 read and update
 {
-	unsigned char more;
-	if(x==0)
-	{
+//	unsigned char more;
+//	if(x==0)
+//	{
 
-	}
-	else
-	{
-		
-	}
+//	}
+//	else
+//	{
+//		
+//	}
+	return 0;
 }
 
 void IWDG_init(uint32_t LsiFreq)
@@ -1137,6 +1106,53 @@ void RTCSet(void)
 		{
 			Error_Handler();
 		}
+}
+static void MpuSleepCheck(void)
+{
+	short accel_short[3];
+	static short accelshort_last[3]={0,0,0};
+	unsigned long timestamp;
+	static uint8 count=0;
+	mpu_get_accel_reg(accel_short,&timestamp);
+	if(accelshort_last[0]==0)
+	{
+		memcpy(accelshort_last,accel_short,3*sizeof(short));
+	}
+	else
+	{
+		if (ABS(accelshort_last[0]-accel_short[0])<8192&&\
+		ABS(accelshort_last[0]-accel_short[0])<8192&&\
+		ABS(accelshort_last[0]-accel_short[0])<8192)
+		{
+			count++;
+		}
+		else
+		{
+			count = 0;
+		}
+	}
+	memcpy(accelshort_last,accel_short,3*sizeof(short));
+	if(count==5)//need sleep
+	{
+		printf("no motion and sleep\r\n");
+		count=0;
+		mpu_lp_accel_mode(0);
+		mpu_lp_motion_interrupt(125,1,1);
+		HAL_RTCEx_DeactivateWakeUpTimer(&hrtc);
+		HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+		SystemClock_Config();
+		HAL_Init();
+		MX_SPI2_Init();
+		MX_SPI1_Init();
+//			MX_GPIO_Init();
+		delay_init();
+		mpu_lp_motion_interrupt(125,0,0);
+		mpu_lp_accel_mode(1);
+		printf("wake on motion\r\n ");
+		cnt_toa=10;//need poll window again
+		memset(accelshort_last,0,3*sizeof(short));
+	}
+	
 }
 /* USER CODE END 4 */
 

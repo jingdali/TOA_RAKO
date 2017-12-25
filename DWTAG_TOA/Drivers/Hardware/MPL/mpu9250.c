@@ -22,7 +22,7 @@ void MPU9250_Init(void)
 		mpu_init(&int_param);
 		mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL | INV_XYZ_COMPASS);
 					//run_self_test();
-		mpu_set_gyro_fsr(2000);//2000 16.4 1000 32.8 500 65.5 250 131
+		mpu_set_gyro_fsr(1000);//2000 16.4 1000 32.8 500 65.5 250 131
 		mpu_set_accel_fsr(2);//2 16384 4 8192 8 4096 16 2048
 		mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL);
 		mpu_set_sample_rate(100);
