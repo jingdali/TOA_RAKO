@@ -85,7 +85,7 @@ typedef unsigned long long uint64;
 
 #define QUANTITY_ANCHOR 3
 #define EASY_READ
-
+#define MAX_MPUDATA_CNT 800
 extern  __IO uint32_t msec;
 
 extern uint8_t nrf_Tx_Buffer[33] ; // 无线传输发送数据

@@ -360,9 +360,7 @@ static void TOAprocess(void)
 	}
 	else
 	{
-		printf("1\r\n");
 		get_wdaccel();
-		printf("2\r\n");
 		do
 		{
 			HAL_GPIO_WritePin(DWWAKE_GPIO_Port, DWWAKE_Pin, GPIO_PIN_SET);//wake up
@@ -482,7 +480,7 @@ static void sysconfig_init(void)
 		{
 			printf("MPU enabled.\r\n");
 			printf("MPU FREQUENCY: %d ms\r\n",sys_config.mpufreq);
-			HAULT_POINT
+//			HAULT_POINT
 			if(MPU9250_Init())
 			{
 				printf("MPU initialized unsuccessful.\r\n");
@@ -519,44 +517,49 @@ static void EXTI2_3_IRQHandler_Config(void)
 //================
 int mpudata_send2MA(void)
 {
-	uint8 tx_TOAdata[112]={0x61,0x88,0,0xCA, 0xDE,0x01, 0x00, 0x00, 0x00,0x20};//TOA数据
+	uint8 tx_TOAdata[112]={0x41,0x88,0,0xCA, 0xDE,0x01, 0x00, 0x00, 0x00,0x20};//TOA数据
 	uint16 TimeOutCNT=0;
+	uint8 dataidx;
 	unsigned char i;
 	uint8 tanscnt=sys_config.mpudatacnt*sizeof(float)/100;
 	tx_TOAdata[SOURADD]=(uint8)sys_config.id;
 	tx_TOAdata[SOURADD+1]=(uint8)(sys_config.id>>8);
-	
-	for(i=0;i<tanscnt;i++)
+	Delay_us(500);
+	dwt_setrxtimeout(2000);
+	dwt_rxenable(DWT_START_RX_IMMEDIATE);	
+	while(1)
 	{
-		tx_TOAdata[FRAME_IDX]=i;
-		memcpy(tx_TOAdata+10,sys_config.pmpudata+i*100,100);
-		dwt_writetxdata(112, tx_TOAdata, 0);
-		dwt_writetxfctrl(112, 0, 0);
-		dwt_setrxtimeout(1000);//设置接受超时
-		TimeOutCNT=0;
-		do
+		while(!(isframe_rec||isreceive_To));
+		if(isreceive_To==1)
 		{
-			dwt_starttx(DWT_START_TX_IMMEDIATE|DWT_RESPONSE_EXPECTED);
-			while(!isframe_sent);
-			isframe_sent=0;	
-			while(!isreceive_To&&!istxframe_acked);
-			if(isreceive_To==1)
-			{
-				//printf("wait 4 ack Time out\r\n");
-				isreceive_To=0;
-				TimeOutCNT++;
-			}
+			isreceive_To=0;
+			TimeOutCNT++;
 			if(TimeOutCNT==3)
 			{
-				break;			
+				break;
 			}
-		}while(istxframe_acked!=1);
-		istxframe_acked=0;
-		//printf("acked\r\n");		
-	}
+			else
+			{
+				dwt_rxenable(DWT_START_RX_IMMEDIATE);
+			}
+		}
+		else
+		{
+			isframe_rec=0;
+			dataidx=rx_buffer[FRAME_IDX];
+			tx_TOAdata[FRAME_IDX]=dataidx;
+			memcpy(tx_TOAdata+10,(uint8*)sys_config.pmpudata+dataidx*100,100);
+			dwt_writetxdata(112, tx_TOAdata, 0);
+			dwt_writetxfctrl(112, 0, 0);
+			dwt_starttx(DWT_START_TX_IMMEDIATE|DWT_RESPONSE_EXPECTED);
+			while(!isframe_sent);
+			isframe_sent=0;
+			TimeOutCNT=0;
+		}
 
-
-	dwt_setrxtimeout(0);//设置接受超时
+	}	
+	
+	dwt_setrxtimeout(0);
 	return 0;
 }
 
@@ -829,10 +832,10 @@ int TOAsend2MainAnch(float *data,int len)//發送數據給主機站
 	if(sys_config.mpu_use)
 	{
 		tx_TOAdata[FUNCODE_IDX]=0x1a|0x40;
-		tx_poll_msg[MPUFREQ1]=(uint8)sys_config.mpufreq;
-		tx_poll_msg[MPUFREQ2]=(uint8)(sys_config.mpufreq>>8);
-		tx_poll_msg[MPUCNT1]=(uint8)sys_config.mpudatacnt;
-		tx_poll_msg[MPUCNT2]=(uint8)(sys_config.mpudatacnt>>8);
+		tx_TOAdata[MPUFREQ1]=(uint8)sys_config.mpufreq;
+		tx_TOAdata[MPUFREQ2]=(uint8)(sys_config.mpufreq>>8);
+		tx_TOAdata[MPUCNT1]=(uint8)sys_config.mpudatacnt;
+		tx_TOAdata[MPUCNT2]=(uint8)(sys_config.mpudatacnt>>8);
 		memcpy(tx_TOAdata+TOAMPU_DATA_IDX,data,len*sizeof(float));			
 		dwt_writetxdata(TOAMPUMSGSIZE, tx_TOAdata, 0);
 		dwt_writetxfctrl(TOAMPUMSGSIZE, 0, 0);
@@ -844,7 +847,7 @@ int TOAsend2MainAnch(float *data,int len)//發送數據給主機站
 		dwt_writetxfctrl(TOAMSGSIZE, 0, 0);		
 	}
 
-	dwt_setrxtimeout(1000);//设置接受超时
+	dwt_setrxtimeout(2000);//设置接受超时
 	TimeOutCNT=0;
 	do
 	{

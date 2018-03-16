@@ -86,10 +86,7 @@ uint8 ACKframe[5]={ACK_FC_0,ACK_FC_1,0,0,0};
 uint8 send_pc[20]={0xFB, 0xFB, 0x11, 0, 0, 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 uint8 dw_payloadbuff[127];
 uint16 TBsyctime=0xff;
-	
-float buff_dis[QUANTITY_ANCHOR];//float 地址buff
-int buff_dis2[QUANTITY_ANCHOR];//int 地址buff
-int buff_dis3[QUANTITY_ANCHOR];//过滤地址buff
+float *pglobalmpudata;
 int idxreco=-1;
 uint16 TAG_datacnt=0;
 uint8 crc=0;
@@ -223,7 +220,7 @@ static int TDOAprocess_TAG(void)
 			Poll4TS[DESTADD+1]=(uint8)(j>>8);
 			dwt_writetxdata(15, Poll4TS, 0); /* Zero offset in TX buffer. */
 			dwt_writetxfctrl(15, 0, 1); /* Zero offset in TX buffer, ranging. */
-			dwt_setrxtimeout(1000);
+			dwt_setrxtimeout(2000);
 			
 			do
 			{
@@ -318,7 +315,7 @@ static int TDOAprocess_mpu_TAG(void)
 			Poll4TS[DESTADD+1]=(uint8)(j>>8);
 			dwt_writetxdata(15, Poll4TS, 0); /* Zero offset in TX buffer. */
 			dwt_writetxfctrl(15, 0, 1); /* Zero offset in TX buffer, ranging. */
-			dwt_setrxtimeout(1000);
+			dwt_setrxtimeout(2000);
 			
 			do
 			{
@@ -383,8 +380,7 @@ static int TDOAprocess_AC(void)
 		list_for_each(i, &TAG_list)
 		{
 			ptag=list_entry2(i, TAGlist_t, taglist);
-			if(ptag->tagid==tagid && \
-				ptag->seqid==idx)
+			if(ptag->tagid==tagid)
 			{
 				isexist=1;
 				break;
@@ -443,41 +439,48 @@ static int TOAdata_mpu_process(void)
 	uint8 TOcnt=0;
 	TAGlist_t* ptag;
 	uint8 i;
-	if(sys_config.ACtype)
+	uint8 POLL4MPU[12]={0x41,0x88,0,0xCA, 0xDE,0x01, 0x00, 0x01, 0x00,0x20,0x00};
+	if(!sys_config.ACtype)
 	{
 		ptag=updatetag(1,0);
 		dwt_setrxtimeout(2000);
 		mpuframecnt=ptag->mpudatacnt*sizeof(float)/100;
 		uwbrevbuff[FRAME_SN_IDX]=0;
-		do
+		POLL4MPU[DESTADD]=(uint8)ptag->tagid;
+		POLL4MPU[DESTADD+1]=(uint8)(ptag->tagid>>8)|0x80;
+		
+		for(i=0;i<mpuframecnt;i++)
 		{
-			dwt_rxenable(DWT_START_RX_IMMEDIATE);
-			while(!(isframe_rec||isreceive_To));
-			if(isreceive_To==1)
+			POLL4MPU[FRAME_SN_IDX]=i;
+			dwt_writetxdata(12, POLL4MPU, 0);
+			dwt_writetxfctrl(12, 0, 0);				
+			while(1)
 			{
-				isreceive_To=0;
-				isframe_rec=0;
-				ptag->mpudata_fault=1;
-				TOcnt++;
-				if(TOcnt==3)break;
-			}
-			else 
-			{
-				if(uwbrevbuff[FUNCODE_IDX]!=0x20)
+				dwt_starttx(DWT_START_TX_IMMEDIATE|DWT_RESPONSE_EXPECTED);
+				while(!isframe_sent);
+				isframe_sent=0;
+				while(!(isframe_rec||isreceive_To));
+				if(isreceive_To==1)
 				{
 					isreceive_To=0;
+					TOcnt++;
+					if(TOcnt==2)
+					{
+						break;
+					}
+				}
+				else			
+				{
 					isframe_rec=0;
-					ptag->mpudata_fault=1;
+					if(uwbrevbuff[FUNCODE_IDX]==0x20&&uwbrevbuff[FRAME_SN_IDX]==i)
+					{
+						memcpy((uint8*)ptag->pmpudata+i*100,uwbrevbuff+10,100);
+					}
 					break;
 				}
-				else
-				{
-					memcpy((uint8*)ptag->pmpudata+uwbrevbuff[FRAME_SN_IDX]*100,uwbrevbuff+10,100);
-					TOcnt=0;
-				}
 			}
+		}
 		
-		}while(uwbrevbuff[FRAME_SN_IDX]!=mpuframecnt);
 		dwt_setrxtimeout(0);
 		dwt_rxenable(DWT_START_RX_IMMEDIATE);
 		
@@ -523,17 +526,16 @@ static TAGlist_t* updatetag(uint8 mpu_use,uint8 RangingType)
 	if(mpu_use)
 	{
 		mpudatacnt=uwbrevbuff[MPUCNT1];
-		mpudatacnt+=(uwbrevbuff[MPUCNT2+1])<<8;	
+		mpudatacnt+=(uwbrevbuff[MPUCNT2])<<8;	
 		mpufreq=uwbrevbuff[MPUFREQ1];
-		mpufreq+=(uwbrevbuff[MPUFREQ2+1])<<8;	
+		mpufreq+=(uwbrevbuff[MPUFREQ2])<<8;	
 	}
 
 
 	list_for_each(i, &TAG_list)
 	{
 		ptag=list_entry2(i, TAGlist_t, taglist);
-		if(ptag->tagid==tagid && \
-			ptag->seqid==idx)
+		if(ptag->tagid==tagid )
 		{
 			isexist=1;
 			break;
@@ -598,7 +600,7 @@ static TAGlist_t* updatetag(uint8 mpu_use,uint8 RangingType)
 		ptag->mpu_use=1;
 		ptag->mpudatacnt=mpudatacnt;
 		ptag->mpufreq=mpufreq;
-		ptag->pmpudata=(float*)malloc(ptag->mpudatacnt*sizeof(float));	
+		ptag->pmpudata=pglobalmpudata;
 	}
 	return ptag;
 error1:
@@ -643,7 +645,6 @@ static void UpLoad(TAGlist_t *ptag)
 	{
 		while(DMA_transing);
 		DMAtrans(ptag->pmpudata ,ptag->mpudatacnt*sizeof(float));
-		free(ptag->pmpudata);	
 	}
 
 }
@@ -802,6 +803,7 @@ static void system_init(void)
 	{
 		dwt_rxenable(DWT_START_RX_IMMEDIATE);
 	}
+	pglobalmpudata=(float*)malloc(MAX_MPUDATA_CNT);
 
 
 }

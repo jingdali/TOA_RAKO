@@ -3,7 +3,7 @@
 <title>Static Call Graph - [f072cbt6\f072cbt6.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image f072cbt6\f072cbt6.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Thu Mar 15 21:37:27 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Fri Mar 16 17:20:43 2018
 <BR><P>
 <H3>Maximum Stack Usage =        676 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -565,6 +565,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;NRF24L01_TX_Mode
 <LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;NRF24L01_RX_Mode
 <LI><a href="#[8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;testI2C
+<LI><a href="#[df]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mpudata_send2MA
 <LI><a href="#[e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TOAprocess
 <LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TDOAprocess
 <LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Wait_Ack
@@ -1368,7 +1369,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[89]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_Init
 </UL>
 
-<P><STRONG><a name="[e2]"></a>TOAsend2MainAnch</STRONG> (Thumb, 298 bytes, Stack size 56 bytes, main.o(i.TOAsend2MainAnch))
+<P><STRONG><a name="[e2]"></a>TOAsend2MainAnch</STRONG> (Thumb, 304 bytes, Stack size 56 bytes, main.o(i.TOAsend2MainAnch))
 <BR><BR>[Stack]<UL><LI>Max Depth = 448<LI>Call Chain = TOAsend2MainAnch &rArr; dwt_writetxfctrl &rArr; dwt_write32bitoffsetreg &rArr; dwt_writetodevice &rArr; writetospi &rArr; HAL_SPI_Transmit &rArr; SPI_EndRxTxTransaction &rArr; SPI_WaitFifoStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_writetxfctrl
@@ -1483,7 +1484,6 @@ Global Symbols
 <LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Error_Handler
 <LI><a href="#[11d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sysconfig_init
 <LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dw1000_init
-<LI><a href="#[e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TOAprocess
 <LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_RxCpltCallback
 <LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_PeriodElapsedCallback
 <LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usmart_sys_cmd_exe
@@ -1693,8 +1693,8 @@ Global Symbols
 <LI><a href="#[ed]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_write8bitoffsetreg
 <LI><a href="#[10f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_syncrxbufptrs
 </UL>
-<BR>[Called By]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_rxenable
-<LI><a href="#[3a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rx_ok_cb
+<BR>[Called By]<UL><LI><a href="#[3a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rx_ok_cb
+<LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_rxenable
 <LI><a href="#[37]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_isr
 </UL>
 
@@ -1762,8 +1762,8 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_readfromdevice
 </UL>
-<BR>[Called By]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_rxenable
-<LI><a href="#[e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_setrxtimeout
+<BR>[Called By]<UL><LI><a href="#[e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_setrxtimeout
+<LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_rxenable
 <LI><a href="#[10f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_syncrxbufptrs
 </UL>
 
@@ -1824,6 +1824,7 @@ Global Symbols
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Start_dwrx
 <LI><a href="#[38]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rx_err_cb
+<LI><a href="#[df]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mpudata_send2MA
 </UL>
 
 <P><STRONG><a name="[114]"></a>dwt_rxreset</STRONG> (Thumb, 24 bytes, Stack size 8 bytes, deca_device.o(i.dwt_rxreset))
@@ -1976,12 +1977,12 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_writetodevice
 </UL>
-<BR>[Called By]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_rxenable
-<LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_settxantennadelay
+<BR>[Called By]<UL><LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_settxantennadelay
 <LI><a href="#[e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_setrxtimeout
 <LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_setrxantennadelay
 <LI><a href="#[104]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_setpanid
 <LI><a href="#[106]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_setaddress16
+<LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_rxenable
 <LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_initialise
 <LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_configuresleep
 <LI><a href="#[103]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_configure
@@ -2286,13 +2287,15 @@ Global Symbols
 <LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dmp_set_accel_bias
 </UL>
 
-<P><STRONG><a name="[df]"></a>mpudata_send2MA</STRONG> (Thumb, 216 bytes, Stack size 128 bytes, main.o(i.mpudata_send2MA))
-<BR><BR>[Stack]<UL><LI>Max Depth = 520<LI>Call Chain = mpudata_send2MA &rArr; dwt_writetxfctrl &rArr; dwt_write32bitoffsetreg &rArr; dwt_writetodevice &rArr; writetospi &rArr; HAL_SPI_Transmit &rArr; SPI_EndRxTxTransaction &rArr; SPI_WaitFifoStateUntilTimeout
+<P><STRONG><a name="[df]"></a>mpudata_send2MA</STRONG> (Thumb, 228 bytes, Stack size 128 bytes, main.o(i.mpudata_send2MA))
+<BR><BR>[Stack]<UL><LI>Max Depth = 536<LI>Call Chain = mpudata_send2MA &rArr; dwt_rxenable &rArr; dwt_forcetrxoff &rArr; dwt_syncrxbufptrs &rArr; dwt_write8bitoffsetreg &rArr; dwt_writetodevice &rArr; writetospi &rArr; HAL_SPI_Transmit &rArr; SPI_EndRxTxTransaction &rArr; SPI_WaitFifoStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_writetxfctrl
 <LI><a href="#[d7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_writetxdata
 <LI><a href="#[d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_starttx
 <LI><a href="#[e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_setrxtimeout
+<LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_rxenable
+<LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Delay_us
 <LI><a href="#[e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 <LI><a href="#[e4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 <LI><a href="#[3f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_uidivmod
@@ -2707,7 +2710,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[33]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[e0]"></a>TOAprocess</STRONG> (Thumb, 328 bytes, Stack size 16 bytes, main.o(i.TOAprocess))
+<P><STRONG><a name="[e0]"></a>TOAprocess</STRONG> (Thumb, 316 bytes, Stack size 16 bytes, main.o(i.TOAprocess))
 <BR><BR>[Stack]<UL><LI>Max Depth = 676<LI>Call Chain = TOAprocess &rArr; get_wdaccel &rArr; Horizonaccel &rArr; MadgwickAHRSupdate &rArr; MadgwickAHRSupdateIMU &rArr; invSqrt &rArr; __aeabi_frsub &rArr; __aeabi_fadd &rArr; _float_epilogue
 </UL>
 <BR>[Calls]<UL><LI><a href="#[bb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_WritePin
@@ -2721,7 +2724,6 @@ Local Symbols
 <LI><a href="#[e2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TOAsend2MainAnch
 <LI><a href="#[de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_wdaccel
 <LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_read32bitoffsetreg
-<LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[33]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -2778,7 +2780,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_wdaccel
 </UL>
 
-<P><STRONG><a name="[11d]"></a>sysconfig_init</STRONG> (Thumb, 186 bytes, Stack size 8 bytes, main.o(i.sysconfig_init))
+<P><STRONG><a name="[11d]"></a>sysconfig_init</STRONG> (Thumb, 170 bytes, Stack size 8 bytes, main.o(i.sysconfig_init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 424<LI>Call Chain = sysconfig_init &rArr; dw1000_init &rArr; dwt_initialise &rArr; dwt_softreset &rArr; _dwt_disablesequencing &rArr; dwt_write16bitoffsetreg &rArr; dwt_writetodevice &rArr; writetospi &rArr; HAL_SPI_Transmit &rArr; SPI_EndRxTxTransaction &rArr; SPI_WaitFifoStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU9250_Init
