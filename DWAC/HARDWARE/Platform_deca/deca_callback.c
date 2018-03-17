@@ -72,6 +72,7 @@ void rx_ok_cb(const dwt_cb_data_t *cb_data)
 			dwt_readrxdata(uwbrevbuff, frame_len, 0);
 			if(!memcmp(lastmesg,uwbrevbuff,10))
 			{
+				dwt_rxenable(DWT_START_RX_IMMEDIATE);
 				return;
 			}
 			memcpy(lastmesg,uwbrevbuff,10);

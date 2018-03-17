@@ -9,6 +9,7 @@ volatile uint8 isreceive_To=0;
 volatile uint8 isframe_rec=0;
 volatile uint8 isack_sent=0;
 
+
 void tx_conf_cb(const dwt_cb_data_t *cb_data)
 {
     /* This callback has been defined so that a breakpoint can be put here to check it is correctly called but there is actually nothing specific to
@@ -25,6 +26,7 @@ void tx_conf_cb(const dwt_cb_data_t *cb_data)
 void rx_ok_cb(const dwt_cb_data_t *cb_data)
 {
 	uint16 frame_len;
+	static uint8 lastmesg[10]={0};
 	frame_len=cb_data->datalength;
 	uint16 i;
 	if (frame_len <= RX_BUF_LEN)
@@ -35,19 +37,28 @@ void rx_ok_cb(const dwt_cb_data_t *cb_data)
 		}
 		else
 		{
-			dwt_readrxdata(rx_buffer, frame_len, 0);
+			
 			if(cb_data->status&SYS_STATUS_AAT)
 			{
+				
 				while(HAL_GPIO_ReadPin(DW_IRQ_GPIO_Port,DW_IRQ_Pin) != 1)
 				{
 					i++;
 					if(i==200)break;//in test its always 0xa1
 				}
-				i=0;
-				dwt_forcetrxoff(); 
-        dwt_rxreset();				
-				dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_TXFRS);
 			}
+			i=0;
+			dwt_forcetrxoff(); 
+			dwt_rxreset();				
+			dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_TXFRS);
+			
+			dwt_readrxdata(rx_buffer, frame_len, 0);
+			if(!memcmp(lastmesg,rx_buffer,10))
+			{
+				dwt_rxenable(DWT_START_RX_IMMEDIATE);
+				return;
+			}
+			memcpy(lastmesg,rx_buffer,10);
 			isframe_rec=1;
 		}
 	}

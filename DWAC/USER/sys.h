@@ -86,6 +86,19 @@ typedef unsigned long long uint64;
 #define QUANTITY_ANCHOR 3
 #define EASY_READ
 #define MAX_MPUDATA_CNT 800
+
+#define WAIT_REC_ACK(t)	{uint16 __t=t; \
+while(!isreceive_To&&!istxframe_acked) \
+{__t?__t--:isreceive_To++;}}
+
+#define WAIT_REC_TO(t)	{uint16 __t=t; \
+while(!isreceive_To&&!isframe_rec) \
+{__t?__t--:isreceive_To++;}}
+
+#define WAIT_SENT(t)	{uint16 __t=t; \
+while(!isframe_sent&&__t) \
+{if(__t)__t--;}}
+
 extern  __IO uint32_t msec;
 
 extern uint8_t nrf_Tx_Buffer[33] ; // 无线传输发送数据

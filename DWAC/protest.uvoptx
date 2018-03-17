@@ -178,37 +178,42 @@
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>uwbrevbuff</ItemText>
+          <ItemText>time_record</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>time_record</ItemText>
+          <ItemText>delayed_txtime</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>delayed_txtime</ItemText>
+          <ItemText>tx_TOAbuff</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>tx_TOAbuff</ItemText>
+          <ItemText>resp_rx_ts</ItemText>
         </Ww>
         <Ww>
           <count>5</count>
           <WinNumber>1</WinNumber>
-          <ItemText>resp_rx_ts</ItemText>
+          <ItemText>mpudatacnt,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>6</count>
           <WinNumber>1</WinNumber>
-          <ItemText>mpudatacnt,0x0A</ItemText>
+          <ItemText>ptag</ItemText>
         </Ww>
         <Ww>
           <count>7</count>
           <WinNumber>1</WinNumber>
-          <ItemText>ptag</ItemText>
+          <ItemText>uwbrevbuff</ItemText>
+        </Ww>
+        <Ww>
+          <count>8</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>lastmesg</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>

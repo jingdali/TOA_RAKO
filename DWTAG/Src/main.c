@@ -148,7 +148,7 @@ unsigned int localtime=0;//本地时间
 uint8_t usart_rx_buff[64];//串口buf
 uint8 tx_poll_msg[TDOAMSGLEN] = {0x41, 0x88, 0, 0xCA, 0xDE, 0xFF, 0xFF, 0, 0, 0x80, 0, 0};
 
-uint8 dw_txseq_num=1;
+volatile uint8 dw_txseq_num=1;
 usart_bitfield USART_STA={
 	0,
 	0,
@@ -223,7 +223,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 //	IWDG_init(40000);
 //	IWDG_Feed();
-
 	tim14_int=0;
 	while(1)
 	{
@@ -399,7 +398,7 @@ static void TBprocess(void)
 	uint32 addtime;
 	uint32 txtime;
 	addtime=(uint32)((float)sys_config.TBfreq/0.0040064);
-	while(!isframe_sent);
+	WAIT_SENT(2000)
 	isframe_sent=0;
 	tx_timestamp=get_tx_timestamp_u64();
 	txtime=(uint32)(tx_timestamp>>8)+addtime; 
@@ -529,12 +528,12 @@ int mpudata_send2MA(void)
 	dwt_rxenable(DWT_START_RX_IMMEDIATE);	
 	while(1)
 	{
-		while(!(isframe_rec||isreceive_To));
+		WAIT_REC_TO(6000)
 		if(isreceive_To==1)
 		{
 			isreceive_To=0;
 			TimeOutCNT++;
-			if(TimeOutCNT==3)
+			if(TimeOutCNT==4)
 			{
 				break;
 			}
@@ -552,7 +551,7 @@ int mpudata_send2MA(void)
 			dwt_writetxdata(112, tx_TOAdata, 0);
 			dwt_writetxfctrl(112, 0, 0);
 			dwt_starttx(DWT_START_TX_IMMEDIATE|DWT_RESPONSE_EXPECTED);
-			while(!isframe_sent);
+			WAIT_SENT(2000)
 			isframe_sent=0;
 			TimeOutCNT=0;
 		}
@@ -617,9 +616,9 @@ void POLL_TimeWindow(void)
 		{
 			isreceive_To=0;
 			dwt_starttx(DWT_START_TX_IMMEDIATE|DWT_RESPONSE_EXPECTED);
-			while(!isframe_sent);
+			WAIT_SENT(2000)
 			isframe_sent=0;	
-			while(!isreceive_To&&!isframe_rec);
+			WAIT_REC_TO(2300)
 			if(isreceive_To==1)
 			{
 				isreceive_To=0;
@@ -746,10 +745,9 @@ int TWRinit(uint16 base_addr,float *distance)//單次測距函數
 				*distance=0;
 				goto error2;
 		}
-		while(!isreceive_To&&!isframe_rec);
+		WAIT_REC_TO(3000)
 		if(isreceive_To==1)
 		{
-			//printf("WF_I_1_TO\r\n");
 			isreceive_To=0;
 			TimeOutCNT++;
 		}
@@ -778,9 +776,9 @@ int TWRinit(uint16 base_addr,float *distance)//單次測距函數
 			*distance=0;
 			goto error2;
 	}
-	while(!isframe_sent);
+	WAIT_SENT(2000)
 	isframe_sent=0;	
-	while(!isreceive_To&&!isframe_rec);
+	WAIT_REC_TO(6000)
 	if(isreceive_To==1)
 	{
 			//printf("WF_I_2_TO\r\n");
@@ -852,9 +850,9 @@ int TOAsend2MainAnch(float *data,int len)//發送數據給主機站
 	do
 	{
 		dwt_starttx(DWT_START_TX_IMMEDIATE|DWT_RESPONSE_EXPECTED);
-		while(!isframe_sent);
-		isframe_sent=0;	
-		while(!isreceive_To&&!istxframe_acked);
+		WAIT_SENT(2000)
+		isframe_sent=0;
+		WAIT_REC_ACK(5600)
 		if(isreceive_To==1)
 		{
 			//printf("wait 4 ack Time out\r\n");

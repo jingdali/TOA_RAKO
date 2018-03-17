@@ -55,6 +55,17 @@
 #define FINAL_MSG_FINAL_TX_TS_IDX 20
 #define SPEED_OF_LIGHT 299702547
 #define RANGE_BIAS 0.57
+
+#define WAIT_REC_TO(t)	{uint16 __t=t; \
+while(!isreceive_To&&!isframe_rec) \
+{__t?__t--:isreceive_To++;}}
+#define WAIT_REC_ACK(t)	{uint16 __t=t; \
+while(!isreceive_To&&!istxframe_acked) \
+{__t?__t--:isreceive_To++;}}
+#define WAIT_SENT(t)	{uint16 __t=t; \
+while(!isframe_sent&&__t) \
+{if(__t)__t--;}}
+
 //#define FLASHPROTECT
 //#define MAXRDPLEVEL
 typedef unsigned long long uint64;
@@ -93,7 +104,7 @@ extern TIM_HandleTypeDef htim14;
 
 extern UART_HandleTypeDef huart1;
 extern volatile unsigned char newdata;
-extern uint8 dw_txseq_num;
+extern volatile uint8 dw_txseq_num;
 extern uint8 dwiswake;
 
 extern volatile uint8 isframe_sent;
