@@ -77,7 +77,7 @@ void rx_ok_cb(const dwt_cb_data_t *cb_data)
 			}
 			memcpy(lastmesg,uwbrevbuff,10);
 			
-			if(uwbrevbuff[FUNCODE_IDX]==0x80)
+			if(uwbrevbuff[FUNCODE_IDX]&0x80)
 			{
 				rx_timestamp=get_rx_timestamp_u64();
 			}

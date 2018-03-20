@@ -3,7 +3,7 @@
 <title>Static Call Graph - [f072cbt6\f072cbt6.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image f072cbt6\f072cbt6.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Sat Mar 17 20:18:47 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Tue Mar 20 14:47:33 2018
 <BR><P>
 <H3>Maximum Stack Usage =        676 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -572,7 +572,6 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;NRF24L01_TX_Mode
 <LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;NRF24L01_RX_Mode
 <LI><a href="#[8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;testI2C
-<LI><a href="#[df]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mpudata_send2MA
 <LI><a href="#[e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TOAprocess
 <LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TDOAprocess
 <LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IIC_Wait_Ack
@@ -1376,7 +1375,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[89]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_Init
 </UL>
 
-<P><STRONG><a name="[e2]"></a>TOAsend2MainAnch</STRONG> (Thumb, 338 bytes, Stack size 56 bytes, main.o(i.TOAsend2MainAnch))
+<P><STRONG><a name="[e2]"></a>TOAsend2MainAnch</STRONG> (Thumb, 334 bytes, Stack size 56 bytes, main.o(i.TOAsend2MainAnch))
 <BR><BR>[Stack]<UL><LI>Max Depth = 448<LI>Call Chain = TOAsend2MainAnch &rArr; dwt_writetxfctrl &rArr; dwt_write32bitoffsetreg &rArr; dwt_writetodevice &rArr; writetospi &rArr; HAL_SPI_Transmit &rArr; SPI_EndRxTxTransaction &rArr; SPI_WaitFifoStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_writetxfctrl
@@ -1389,7 +1388,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TOAprocess
 </UL>
 
-<P><STRONG><a name="[e1]"></a>TWRinit</STRONG> (Thumb, 738 bytes, Stack size 176 bytes, main.o(i.TWRinit))
+<P><STRONG><a name="[e1]"></a>TWRinit</STRONG> (Thumb, 758 bytes, Stack size 176 bytes, main.o(i.TWRinit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 568<LI>Call Chain = TWRinit &rArr; dwt_writetxfctrl &rArr; dwt_write32bitoffsetreg &rArr; dwt_writetodevice &rArr; writetospi &rArr; HAL_SPI_Transmit &rArr; SPI_EndRxTxTransaction &rArr; SPI_WaitFifoStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_tx_timestamp_u64
@@ -2295,7 +2294,7 @@ Global Symbols
 <LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dmp_set_accel_bias
 </UL>
 
-<P><STRONG><a name="[df]"></a>mpudata_send2MA</STRONG> (Thumb, 260 bytes, Stack size 128 bytes, main.o(i.mpudata_send2MA))
+<P><STRONG><a name="[df]"></a>mpudata_send2MA</STRONG> (Thumb, 248 bytes, Stack size 128 bytes, main.o(i.mpudata_send2MA))
 <BR><BR>[Stack]<UL><LI>Max Depth = 536<LI>Call Chain = mpudata_send2MA &rArr; dwt_rxenable &rArr; dwt_forcetrxoff &rArr; dwt_syncrxbufptrs &rArr; dwt_write8bitoffsetreg &rArr; dwt_writetodevice &rArr; writetospi &rArr; HAL_SPI_Transmit &rArr; SPI_EndRxTxTransaction &rArr; SPI_WaitFifoStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_writetxfctrl
@@ -2303,7 +2302,6 @@ Global Symbols
 <LI><a href="#[d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_starttx
 <LI><a href="#[e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_setrxtimeout
 <LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dwt_rxenable
-<LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Delay_us
 <LI><a href="#[e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 <LI><a href="#[e4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 <LI><a href="#[3f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_uidivmod
@@ -2686,7 +2684,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[33]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[d4]"></a>TBprocess</STRONG> (Thumb, 166 bytes, Stack size 40 bytes, main.o(i.TBprocess))
+<P><STRONG><a name="[d4]"></a>TBprocess</STRONG> (Thumb, 162 bytes, Stack size 40 bytes, main.o(i.TBprocess))
 <BR><BR>[Stack]<UL><LI>Max Depth = 432<LI>Call Chain = TBprocess &rArr; dwt_writetxfctrl &rArr; dwt_write32bitoffsetreg &rArr; dwt_writetodevice &rArr; writetospi &rArr; HAL_SPI_Transmit &rArr; SPI_EndRxTxTransaction &rArr; SPI_WaitFifoStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_tx_timestamp_u64
@@ -2702,7 +2700,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[33]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[da]"></a>TDOAprocess</STRONG> (Thumb, 346 bytes, Stack size 8 bytes, main.o(i.TDOAprocess))
+<P><STRONG><a name="[da]"></a>TDOAprocess</STRONG> (Thumb, 402 bytes, Stack size 8 bytes, main.o(i.TDOAprocess))
 <BR><BR>[Stack]<UL><LI>Max Depth = 668<LI>Call Chain = TDOAprocess &rArr; get_wdaccel &rArr; Horizonaccel &rArr; MadgwickAHRSupdate &rArr; MadgwickAHRSupdateIMU &rArr; invSqrt &rArr; __aeabi_frsub &rArr; __aeabi_fadd &rArr; _float_epilogue
 </UL>
 <BR>[Calls]<UL><LI><a href="#[bb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_WritePin

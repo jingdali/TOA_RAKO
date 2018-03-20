@@ -64,7 +64,7 @@ while(!isreceive_To&&!istxframe_acked) \
 {__t?__t--:isreceive_To++;}}
 #define WAIT_SENT(t)	{uint16 __t=t; \
 while(!isframe_sent&&__t) \
-{if(__t)__t--;}}
+{__t--;}}
 
 //#define FLASHPROTECT
 //#define MAXRDPLEVEL

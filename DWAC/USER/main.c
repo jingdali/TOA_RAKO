@@ -160,7 +160,7 @@ int main(void)
 			{
 				case 0x80:TDOAprocess_TAG();break;
 				case 0x80|0x40:TDOAprocess_mpu_TAG();break;
-				case 0x81:TDOAprocess_AC();break;				
+				case 0x40:TDOAprocess_AC();break;				
 				case 0x2B:AssignTimeWindow();break;
 				case 0x1A:TOAdata_process();break;
 				case 0x1A|0x40:TOAdata_mpu_process();break;
@@ -203,9 +203,9 @@ int AssignTimeWindow(void)
 static int TDOAprocess_TAG(void)
 {
 
-	uint8 j;
+	uint8 i,j;
 	TAGlist_t *ptag;
-	uint8 Poll4TS[12+2+1] = {0x41, 0x88, 0, 0xCA, 0xDE, 0x00, 0x00, 0x01, 0x00, 0x81};
+	uint8 Poll4TS[12+2+1] = {0x41, 0x88, 0, 0xCA, 0xDE, 0x00, 0x00, 0x01, 0x00, 0x40};
 	uint8 TOcnt=0;
 
 	if(!sys_config.ACtype)//main anchor
@@ -231,7 +231,11 @@ static int TDOAprocess_TAG(void)
 				{
 					isreceive_To=0;
 					TOcnt++;
-					if(TOcnt==3)break;
+					if(TOcnt==3)
+					{
+						TOcnt=0;
+						break;
+					}
 				}
 				else 
 				{
@@ -251,8 +255,16 @@ static int TDOAprocess_TAG(void)
 			}while(1);
 		}
 		dwt_setrxtimeout(0);
-		dwt_rxenable(DWT_START_RX_IMMEDIATE);	
+		
+#ifdef EASY_READ		
+		for(i=0;i<sys_config.acnum;i++)
+		{
+			printf("ANCHOR: %d TS: %llx\r\n",i+1,*((uint64*)ptag->puwbdata+i));
+		}
+#else
 		UpLoad(ptag);
+#endif	
+		dwt_rxenable(DWT_START_RX_IMMEDIATE);	
 		return 1;
 	}
 	else//slave anchor
@@ -268,19 +280,21 @@ static int TDOAprocess_mpu_TAG(void)
 {
 	uint8 j;
 	TAGlist_t *ptag;
-	uint8 Poll4TS[12+2+1] = {0x41, 0x88, 0, 0xCA, 0xDE, 0x00, 0x00, 0x01, 0x00, 0x81};
+	uint8 Poll4TS[12+2+1] = {0x41, 0x88, 0, 0xCA, 0xDE, 0x00, 0x00, 0x01, 0x00, 0x40};
 	uint8 TOcnt=0;
 	uint16 mpuframecnt;
 	uint8 i;
 	uint8 POLL4MPU[12]={0x41,0x88,0,0xCA, 0xDE,0x01, 0x00, 0x01, 0x00,0x20,0x00};
+
 	if(!sys_config.ACtype)//main anchor
 	{
 		ptag=updatetag(1,1);
-		dwt_setrxtimeout(2000);
+		dwt_setrxtimeout(4000);
 		mpuframecnt=ptag->mpudatacnt*sizeof(float)/100;
 		uwbrevbuff[FRAME_SN_IDX]=0;
-		
-		
+		POLL4MPU[DESTADD]=(uint8)ptag->tagid;
+		POLL4MPU[DESTADD+1]=(uint8)(ptag->tagid>>8)|0x80;
+		ptag->mpudata_fault=0;	
 		for(i=0;i<mpuframecnt;i++)
 		{
 			POLL4MPU[FRAME_SN_IDX]=i;
@@ -291,13 +305,15 @@ static int TDOAprocess_mpu_TAG(void)
 				dwt_starttx(DWT_START_TX_IMMEDIATE|DWT_RESPONSE_EXPECTED);
 				WAIT_SENT(2000)
 				isframe_sent=0;
-				WAIT_REC_TO(6000)
+				WAIT_REC_TO(12000)
 				if(isreceive_To==1)
 				{
 					isreceive_To=0;
 					TOcnt++;
-					if(TOcnt==2)
+					if(TOcnt==3)
 					{
+						TOcnt=0;
+						ptag->mpudata_fault++;
 						memset((uint8*)ptag->pmpudata+i*100,0,100);
 						break;
 						
@@ -314,8 +330,7 @@ static int TDOAprocess_mpu_TAG(void)
 				}
 			}
 		}
-		
-		  
+					  
 		Poll4TS[10]=(uint8)ptag->tagid;
 		Poll4TS[11]=(uint8)(ptag->tagid>>8);
 		Poll4TS[12]=ptag->seqid;
@@ -329,7 +344,8 @@ static int TDOAprocess_mpu_TAG(void)
 			
 			do
 			{
-				while(dwt_starttx(DWT_START_TX_IMMEDIATE|DWT_RESPONSE_EXPECTED)!=DWT_SUCCESS);	
+				while(dwt_starttx(DWT_START_TX_IMMEDIATE|DWT_RESPONSE_EXPECTED)!=DWT_SUCCESS)
+				{}
 				WAIT_REC_TO(6000)
 				if(isreceive_To==1)
 				{
@@ -337,6 +353,7 @@ static int TDOAprocess_mpu_TAG(void)
 					TOcnt++;
 					if(TOcnt==3)
 					{
+						TOcnt=0;
 						*((uint64*)ptag->puwbdata+j-1)=0;
 						break;
 					}
@@ -360,7 +377,18 @@ static int TDOAprocess_mpu_TAG(void)
 		}
 		dwt_setrxtimeout(0);
 		dwt_rxenable(DWT_START_RX_IMMEDIATE);	
+#ifdef EASY_READ		
+		for(i=0;i<sys_config.acnum;i++)
+		{
+			printf("ANCHOR: %d TS: %llx\r\n",i+1,*((uint64*)ptag->puwbdata+i));
+		}
+		for(i=0;i<ptag->mpudatacnt/2;i++)
+		{
+			printf("%.2f	%.2f\r\n",*(ptag->pmpudata+2*i),*(ptag->pmpudata+2*i+1));
+		}
+#else
 		UpLoad(ptag);
+#endif	
 		return 1;
 	}
 	else//slave anchor
@@ -458,7 +486,7 @@ static int TOAdata_mpu_process(void)
 	if(!sys_config.ACtype)
 	{
 		ptag=updatetag(1,0);
-		dwt_setrxtimeout(2000);
+		dwt_setrxtimeout(4000);
 		mpuframecnt=ptag->mpudatacnt*sizeof(float)/100;
 		uwbrevbuff[FRAME_SN_IDX]=0;
 		POLL4MPU[DESTADD]=(uint8)ptag->tagid;
@@ -474,13 +502,14 @@ static int TOAdata_mpu_process(void)
 				dwt_starttx(DWT_START_TX_IMMEDIATE|DWT_RESPONSE_EXPECTED);
 				WAIT_SENT(2000)
 				isframe_sent=0;
-				WAIT_REC_TO(6000)
+				WAIT_REC_TO(12000)
 				if(isreceive_To==1)
 				{
 					isreceive_To=0;
 					TOcnt++;
 					if(TOcnt==3)
 					{
+						TOcnt=0;
 						ptag->mpudata_fault++;
 						memset((uint8*)ptag->pmpudata+i*100,0,100);
 						break;
@@ -507,8 +536,11 @@ static int TOAdata_mpu_process(void)
 		{
 			printf("ANCHOR: %d DIS: %.2f\r\n",i+1,*((float*)ptag->puwbdata+i));
 		}
+//		for(i=0;i<ptag->mpudatacnt/2;i++)
+//		{
+//			printf("%.2f	%.2f\r\n",*(ptag->pmpudata+2*i),*(ptag->pmpudata+2*i+1));
+//		}
 		printf("fail time %d\r\n",ptag->mpudata_fault);
-
 #else
 		UpLoad(ptag);
 #endif		
@@ -674,6 +706,8 @@ int TWRresp(void)
 	uint64 final_tx_ts;
 	uint8 tx_TOAbuff[27]={0x41, 0x88, 0, 0xCA, 0xDE, 0x00, 0x00, 0x00, 0x00, 0x10};//TOA定位所使用的buff
 	uint8 TimeOutCNT=0;
+	
+	
 	dwt_forcetrxoff();
 	dwt_rxreset();
 	tx_TOAbuff[DESTADD]=uwbrevbuff[SOURADD];
@@ -681,6 +715,7 @@ int TWRresp(void)
 	tx_TOAbuff[SOURADD]=(uint8)Achor_addr;
 	tx_TOAbuff[SOURADD+1]=(uint8)(Achor_addr>>8);
 	tx_TOAbuff[FUNCODE_IDX]=0x11;
+	tx_TOAbuff[FRAME_SN_IDX]=uwbrevbuff[FRAME_SN_IDX];
 	dwt_setrxtimeout(2200);//设置接受超时
 	TimeOutCNT=0;
 	dwt_writetxdata(12, tx_TOAbuff, 0); /* Zero offset in TX buffer. */
@@ -702,7 +737,6 @@ int TWRresp(void)
 			//printf("I_1_TO\r\n");
 			isreceive_To=0;
 			TimeOutCNT++;
-			dwt_rxenable(DWT_START_RX_IMMEDIATE);
 		}
 		if(TimeOutCNT==1)
 		{

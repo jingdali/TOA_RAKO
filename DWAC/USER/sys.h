@@ -97,7 +97,7 @@ while(!isreceive_To&&!isframe_rec) \
 
 #define WAIT_SENT(t)	{uint16 __t=t; \
 while(!isframe_sent&&__t) \
-{if(__t)__t--;}}
+{__t--;}}
 
 extern  __IO uint32_t msec;
 

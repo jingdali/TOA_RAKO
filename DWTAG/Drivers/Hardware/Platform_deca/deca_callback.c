@@ -46,12 +46,12 @@ void rx_ok_cb(const dwt_cb_data_t *cb_data)
 					i++;
 					if(i==200)break;//in test its always 0xa1
 				}
+				i=0;
+				dwt_forcetrxoff(); 
+				dwt_rxreset();				
+				dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_TXFRS);
 			}
-			i=0;
-			dwt_forcetrxoff(); 
-			dwt_rxreset();				
-			dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_TXFRS);
-			
+
 			dwt_readrxdata(rx_buffer, frame_len, 0);
 			if(!memcmp(lastmesg,rx_buffer,10))
 			{

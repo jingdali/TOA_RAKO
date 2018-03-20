@@ -81,7 +81,7 @@ static dwt_config_t config = {
 };
 uint16 Acaddrtable[QUANTITY_ANCHOR]={0x01,0x02,0x03,0x04};
 sys_config_t sys_config = {
-	.rangingtype=0,	/* 0 --> TOA , 1 --> TDOA */
+	.rangingtype=1,	/* 0 --> TOA , 1 --> TDOA */
 	.timebase=0,	/* 1 --> use timebase */
 	.mpu_use=1,		/* 1 --> use mpu */
 	.pmpudata=NULL,
@@ -280,7 +280,10 @@ static void TDOAprocess(void)
 		tx_poll_msg[FUNCODE_IDX]=0x80;
 		dwt_writetxdata(TDOAMSGSIZE, tx_poll_msg, 0); /* Zero offset in TX buffer. */
 		dwt_writetxfctrl(TDOAMSGSIZE, 0, 1); /* Zero offset in TX buffer, ranging. */
-		while(dwt_starttx(DWT_START_TX_IMMEDIATE)!=DWT_SUCCESS);	
+		while(dwt_starttx(DWT_START_TX_IMMEDIATE)!=DWT_SUCCESS)
+		{}
+		WAIT_SENT(2000)
+		isframe_sent=0;
 		dwt_entersleep();
 		while(!tim14_int);
 		tim14_int=0;//tim14 发生中断		
@@ -298,7 +301,6 @@ static void TDOAprocess(void)
 		}while(!status);
 		dwt_setrxantennadelay(RX_ANT_DLY);
 		dwt_settxantennadelay(TX_ANT_DLY);	
-		
 		tx_poll_msg[FRAME_IDX]=dw_txseq_num++;	
 		tx_poll_msg[WLIDX]=0;
 		tx_poll_msg[WRIDX]=0;
@@ -311,7 +313,10 @@ static void TDOAprocess(void)
 		tx_poll_msg[MPUCNT2]=(uint8)(sys_config.mpudatacnt>>8);
 		dwt_writetxdata(TDOAMPUMSGSIZE, tx_poll_msg, 0); /* Zero offset in TX buffer. */
 		dwt_writetxfctrl(TDOAMPUMSGSIZE, 0, 1); /* Zero offset in TX buffer, ranging. */
-		while(dwt_starttx(DWT_START_TX_IMMEDIATE)!=DWT_SUCCESS);	
+		while(dwt_starttx(DWT_START_TX_IMMEDIATE)!=DWT_SUCCESS)
+		{}
+		WAIT_SENT(2000)
+		isframe_sent=0;
 		mpudata_send2MA();
 		dwt_entersleep();
 	}		
@@ -523,18 +528,18 @@ int mpudata_send2MA(void)
 	uint8 tanscnt=sys_config.mpudatacnt*sizeof(float)/100;
 	tx_TOAdata[SOURADD]=(uint8)sys_config.id;
 	tx_TOAdata[SOURADD+1]=(uint8)(sys_config.id>>8);
-	Delay_us(500);
-	dwt_setrxtimeout(2000);
+	dwt_setrxtimeout(3000);
 	dwt_rxenable(DWT_START_RX_IMMEDIATE);	
 	while(1)
 	{
-		WAIT_REC_TO(6000)
+		WAIT_REC_TO(9000)
 		if(isreceive_To==1)
 		{
 			isreceive_To=0;
 			TimeOutCNT++;
 			if(TimeOutCNT==4)
 			{
+				TimeOutCNT=0;
 				break;
 			}
 			else
@@ -736,16 +741,17 @@ int TWRinit(uint16 base_addr,float *distance)//單次測距函數
 //	}while(istxframe_acked!=1);
 //	istxframe_acked=0;
 	TimeOutCNT=0;
-	dwt_setrxtimeout(1000);//设置接受超时
+	dwt_setrxtimeout(2000);//设置接受超时
 	do
 	{
 		ret=dwt_starttx(DWT_START_TX_IMMEDIATE|DWT_RESPONSE_EXPECTED);
+		WAIT_SENT(2000)
 		if(ret == DWT_ERROR)
 		{
 				*distance=0;
 				goto error2;
 		}
-		WAIT_REC_TO(3000)
+		WAIT_REC_TO(6000)
 		if(isreceive_To==1)
 		{
 			isreceive_To=0;
@@ -753,6 +759,7 @@ int TWRinit(uint16 base_addr,float *distance)//單次測距函數
 		}
 		if(TimeOutCNT==1)
 		{
+			TimeOutCNT=0;
 			*distance=0;
 			Delay_ms(3);//保证基站已经退出定位子程序
 			goto error1;			
