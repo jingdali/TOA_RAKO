@@ -2,7 +2,7 @@
 #define __MAIN_H
 
 
-#include "deca_types.h"
+#include "deca_types.h"  
 #include "usmart.h"
 #include "stdint.h"
 #include "rf24l01.h"
@@ -22,7 +22,7 @@
 #define q30 1073741824.0f
 #define TX_ANT_DLY 16495
 #define RX_ANT_DLY 16495
-#define TAG_ID 2u|0x8000u
+#define TAG_ID 1u|0x8000u
 
 
 #define TDOAMSGLEN 16+4
@@ -33,7 +33,7 @@
 #define WLIDX 10
 #define WRIDX 11
 
-#define QUANTITY_ANCHOR 4
+#define QUANTITY_ANCHOR 5
 #define TOA_MSG_LEN 10+2+2+4+4*QUANTITY_ANCHOR+2
 #define TOAMSGSIZE 10+2+2+4*QUANTITY_ANCHOR+2
 #define TOAMPUMSGSIZE 10+2+2+4+4*QUANTITY_ANCHOR+2

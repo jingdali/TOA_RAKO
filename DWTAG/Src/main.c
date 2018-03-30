@@ -79,11 +79,11 @@ static dwt_config_t config = {
     DWT_PHRMODE_STD, /* PHY header mode. */
     (129 + 8 - 8) /* SFD timeout (preamble length + 1 + SFD length - PAC size). Used in RX only. */
 };
-uint16 Acaddrtable[QUANTITY_ANCHOR]={0x01,0x02,0x03,0x04};
+uint16 Acaddrtable[QUANTITY_ANCHOR]={0x01,0x02,0x03,0x04,0x05};
 sys_config_t sys_config = {
-	.rangingtype=1,	/* 0 --> TOA , 1 --> TDOA */
+	.rangingtype=0,	/* 0 --> TOA , 1 --> TDOA */
 	.timebase=0,	/* 1 --> use timebase */
-	.mpu_use=1,		/* 1 --> use mpu */
+	.mpu_use=0,		/* 1 --> use mpu */
 	.pmpudata=NULL,
 	.mpudatacnt=200,//200*float
 	.mpufreq=10,//ms
@@ -469,7 +469,7 @@ static void sysconfig_init(void)
 */if(!sys_config.timebase)
 	{
 		printf("TAG ID: %d\r\n",sys_config.id&0x7fff);
-		if(sys_config.rangingtype)
+		if(!sys_config.rangingtype)
 		{
 			printf("RANGING TYPE: TOA\r\n");
 		}

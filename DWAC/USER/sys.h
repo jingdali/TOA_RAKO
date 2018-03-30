@@ -35,7 +35,7 @@ typedef unsigned long long uint64;
 #define WLIDX 10
 #define WRIDX 11
 
-#define ANCHORCNT 4
+#define ANCHORCNT 5
 #define ANCHOR_NUM 1
 #define TOA_MSG_LEN 10+2+2+4+4*ANCHORCNT+2
 #define TOAMSGSIZE 10+2+2+4*ANCHORCNT+2

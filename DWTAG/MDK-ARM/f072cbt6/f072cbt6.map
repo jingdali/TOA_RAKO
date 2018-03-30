@@ -3120,41 +3120,41 @@ Image Symbol Table
     .conststring                             0x0800acb0   Section      272  usmart_config.o(.conststring)
     .data                                    0x20000000   Section        4  stm32f0xx_hal.o(.data)
     .data                                    0x20000004   Section        4  system_stm32f0xx.o(.data)
-    .data                                    0x20000008   Section      196  main.o(.data)
+    .data                                    0x20000008   Section      200  main.o(.data)
     config                                   0x20000008   Data          12  main.o(.data)
-    pan_id                                   0x20000034   Data           2  main.o(.data)
-    eui                                      0x20000036   Data           8  main.o(.data)
-    a                                        0x200000b4   Data          12  main.o(.data)
-    b                                        0x200000c0   Data          12  main.o(.data)
-    .data                                    0x200000cc   Section        4  delay.o(.data)
-    fac_us                                   0x200000cc   Data           1  delay.o(.data)
-    fac_ms                                   0x200000ce   Data           2  delay.o(.data)
-    .data                                    0x200000d0   Section        6  testing.o(.data)
-    .data                                    0x200000d8   Section       21  deca_callback.o(.data)
-    .data                                    0x200000f0   Section        4  dw1000.o(.data)
-    .data                                    0x200000f4   Section        2  rf24l01.o(.data)
-    .data                                    0x200000f8   Section       28  usmart.o(.data)
-    .data                                    0x20000114   Section      316  usmart_config.o(.data)
-    .data                                    0x20000250   Section       56  inv_mpu.o(.data)
-    st                                       0x20000250   Data          56  inv_mpu.o(.data)
-    .data                                    0x20000288   Section       20  madgwickahrs.o(.data)
-    .data                                    0x2000029c   Section        4  stdout.o(.data)
-    .data                                    0x200002a0   Section        4  mvars.o(.data)
-    .data                                    0x200002a4   Section        4  mvars.o(.data)
-    .data                                    0x200002a8   Section        4  errno.o(.data)
-    _errno                                   0x200002a8   Data           4  errno.o(.data)
-    .bss                                     0x200002ac   Section      860  main.o(.bss)
-    x                                        0x200005c0   Data          36  main.o(.bss)
-    y                                        0x200005e4   Data          36  main.o(.bss)
-    .bss                                     0x20000608   Section       40  testing.o(.bss)
-    .bss                                     0x20000630   Section       45  deca_callback.o(.bss)
-    lastmesg                                 0x20000653   Data          10  deca_callback.o(.bss)
-    .bss                                     0x20000660   Section       56  deca_device.o(.bss)
-    dw1000local                              0x20000660   Data          56  deca_device.o(.bss)
-    .bss                                     0x20000698   Section       16  inv_mpu_dmp_motion_driver.o(.bss)
-    dmp                                      0x20000698   Data          16  inv_mpu_dmp_motion_driver.o(.bss)
-    HEAP                                     0x200006a8   Section     1024  startup_stm32f072xb.o(HEAP)
-    STACK                                    0x20000aa8   Section     1024  startup_stm32f072xb.o(STACK)
+    pan_id                                   0x20000038   Data           2  main.o(.data)
+    eui                                      0x2000003a   Data           8  main.o(.data)
+    a                                        0x200000b8   Data          12  main.o(.data)
+    b                                        0x200000c4   Data          12  main.o(.data)
+    .data                                    0x200000d0   Section        4  delay.o(.data)
+    fac_us                                   0x200000d0   Data           1  delay.o(.data)
+    fac_ms                                   0x200000d2   Data           2  delay.o(.data)
+    .data                                    0x200000d4   Section        6  testing.o(.data)
+    .data                                    0x200000e0   Section       21  deca_callback.o(.data)
+    .data                                    0x200000f8   Section        4  dw1000.o(.data)
+    .data                                    0x200000fc   Section        2  rf24l01.o(.data)
+    .data                                    0x20000100   Section       28  usmart.o(.data)
+    .data                                    0x2000011c   Section      316  usmart_config.o(.data)
+    .data                                    0x20000258   Section       56  inv_mpu.o(.data)
+    st                                       0x20000258   Data          56  inv_mpu.o(.data)
+    .data                                    0x20000290   Section       20  madgwickahrs.o(.data)
+    .data                                    0x200002a4   Section        4  stdout.o(.data)
+    .data                                    0x200002a8   Section        4  mvars.o(.data)
+    .data                                    0x200002ac   Section        4  mvars.o(.data)
+    .data                                    0x200002b0   Section        4  errno.o(.data)
+    _errno                                   0x200002b0   Data           4  errno.o(.data)
+    .bss                                     0x200002b4   Section      860  main.o(.bss)
+    x                                        0x200005c8   Data          36  main.o(.bss)
+    y                                        0x200005ec   Data          36  main.o(.bss)
+    .bss                                     0x20000610   Section       40  testing.o(.bss)
+    .bss                                     0x20000638   Section       45  deca_callback.o(.bss)
+    lastmesg                                 0x2000065b   Data          10  deca_callback.o(.bss)
+    .bss                                     0x20000668   Section       56  deca_device.o(.bss)
+    dw1000local                              0x20000668   Data          56  deca_device.o(.bss)
+    .bss                                     0x200006a0   Section       16  inv_mpu_dmp_motion_driver.o(.bss)
+    dmp                                      0x200006a0   Data          16  inv_mpu_dmp_motion_driver.o(.bss)
+    HEAP                                     0x200006b0   Section     1024  startup_stm32f072xb.o(HEAP)
+    STACK                                    0x20000ab0   Section     1024  startup_stm32f072xb.o(STACK)
 
     Global Symbols
 
@@ -3547,69 +3547,69 @@ Image Symbol Table
     Region$$Table$$Limit                     0x0800ade0   Number         0  anon$$obj.o(Region$$Table)
     uwTick                                   0x20000000   Data           4  stm32f0xx_hal.o(.data)
     SystemCoreClock                          0x20000004   Data           4  system_stm32f0xx.o(.data)
-    Acaddrtable                              0x20000014   Data           8  main.o(.data)
-    sys_config                               0x2000001c   Data          24  main.o(.data)
-    aTxBuffer                                0x2000003e   Data           1  main.o(.data)
-    aRxBuffer                                0x2000003f   Data           1  main.o(.data)
-    SenLsta                                  0x20000040   Data           1  main.o(.data)
-    SenRsta                                  0x20000041   Data           1  main.o(.data)
-    USART_tmp                                0x20000042   Data           1  main.o(.data)
-    localtime                                0x20000044   Data           4  main.o(.data)
-    tx_poll_msg                              0x20000048   Data          20  main.o(.data)
-    dw_txseq_num                             0x2000005c   Data           1  main.o(.data)
-    USART_STA                                0x2000005e   Data           2  main.o(.data)
-    ACtime                                   0x20000060   Data           4  main.o(.data)
-    newdata                                  0x20000064   Data           1  main.o(.data)
-    dwiswake                                 0x20000065   Data           1  main.o(.data)
-    TBsynctime                               0x20000066   Data           2  main.o(.data)
-    tim14_int                                0x20000068   Data           1  main.o(.data)
-    newdatacnt                               0x2000006a   Data           2  main.o(.data)
-    pmag_sens_adj                            0x2000006c   Data           4  main.o(.data)
-    K_matrix                                 0x20000070   Data          36  main.o(.data)
-    B_matrix                                 0x20000094   Data          12  main.o(.data)
-    accelbias                                0x200000a0   Data          12  main.o(.data)
-    triggle                                  0x200000ac   Data           1  main.o(.data)
-    tmp                                      0x200000ad   Data           5  main.o(.data)
-    time_record                              0x200000d0   Data           4  testing.o(.data)
-    timestack_cnt                            0x200000d4   Data           2  testing.o(.data)
-    tx_timestamp                             0x200000d8   Data           8  deca_callback.o(.data)
-    rx_timestamp                             0x200000e0   Data           8  deca_callback.o(.data)
-    isframe_sent                             0x200000e8   Data           1  deca_callback.o(.data)
-    istxframe_acked                          0x200000e9   Data           1  deca_callback.o(.data)
-    isreceive_To                             0x200000ea   Data           1  deca_callback.o(.data)
-    isframe_rec                              0x200000eb   Data           1  deca_callback.o(.data)
-    isack_sent                               0x200000ec   Data           1  deca_callback.o(.data)
-    port_deca_isr                            0x200000f0   Data           4  dw1000.o(.data)
-    nrfsta                                   0x200000f4   Data           1  rf24l01.o(.data)
-    TransCop                                 0x200000f5   Data           1  rf24l01.o(.data)
-    sys_cmd_tab                              0x200000f8   Data          28  usmart.o(.data)
-    usmart_nametab                           0x20000114   Data          72  usmart_config.o(.data)
-    usmart_dev                               0x2000015c   Data         244  usmart_config.o(.data)
-    beta                                     0x20000288   Data           4  madgwickahrs.o(.data)
-    q0                                       0x2000028c   Data           4  madgwickahrs.o(.data)
-    q1                                       0x20000290   Data           4  madgwickahrs.o(.data)
-    q2                                       0x20000294   Data           4  madgwickahrs.o(.data)
-    q3                                       0x20000298   Data           4  madgwickahrs.o(.data)
-    __stdout                                 0x2000029c   Data           4  stdout.o(.data)
-    __microlib_freelist                      0x200002a0   Data           4  mvars.o(.data)
-    __microlib_freelist_initialised          0x200002a4   Data           4  mvars.o(.data)
-    hspi1                                    0x200002ac   Data         100  main.o(.bss)
-    hspi2                                    0x20000310   Data         100  main.o(.bss)
-    htim14                                   0x20000374   Data          60  main.o(.bss)
-    huart1                                   0x200003b0   Data         112  main.o(.bss)
-    IwdgHandle                               0x20000420   Data          20  main.o(.bss)
-    hrtc                                     0x20000434   Data          32  main.o(.bss)
-    Tx_Buffer                                0x20000454   Data          33  main.o(.bss)
-    Rx_Buffer                                0x20000475   Data          33  main.o(.bss)
-    nrf_Tx_Buffer                            0x20000496   Data          33  main.o(.bss)
-    nrf_Rx_Buffer                            0x200004b7   Data          33  main.o(.bss)
-    MPUdatabuff                              0x200004d8   Data         165  main.o(.bss)
-    usart_rx_buff                            0x2000057d   Data          64  main.o(.bss)
-    time_stack                               0x20000608   Data          40  testing.o(.bss)
-    rx_buffer                                0x20000630   Data          35  deca_callback.o(.bss)
-    __heap_base                              0x200006a8   Data           0  startup_stm32f072xb.o(HEAP)
-    __heap_limit                             0x20000aa8   Data           0  startup_stm32f072xb.o(HEAP)
-    __initial_sp                             0x20000ea8   Data           0  startup_stm32f072xb.o(STACK)
+    Acaddrtable                              0x20000014   Data          10  main.o(.data)
+    sys_config                               0x20000020   Data          24  main.o(.data)
+    aTxBuffer                                0x20000042   Data           1  main.o(.data)
+    aRxBuffer                                0x20000043   Data           1  main.o(.data)
+    SenLsta                                  0x20000044   Data           1  main.o(.data)
+    SenRsta                                  0x20000045   Data           1  main.o(.data)
+    USART_tmp                                0x20000046   Data           1  main.o(.data)
+    localtime                                0x20000048   Data           4  main.o(.data)
+    tx_poll_msg                              0x2000004c   Data          20  main.o(.data)
+    dw_txseq_num                             0x20000060   Data           1  main.o(.data)
+    USART_STA                                0x20000062   Data           2  main.o(.data)
+    ACtime                                   0x20000064   Data           4  main.o(.data)
+    newdata                                  0x20000068   Data           1  main.o(.data)
+    dwiswake                                 0x20000069   Data           1  main.o(.data)
+    TBsynctime                               0x2000006a   Data           2  main.o(.data)
+    tim14_int                                0x2000006c   Data           1  main.o(.data)
+    newdatacnt                               0x2000006e   Data           2  main.o(.data)
+    pmag_sens_adj                            0x20000070   Data           4  main.o(.data)
+    K_matrix                                 0x20000074   Data          36  main.o(.data)
+    B_matrix                                 0x20000098   Data          12  main.o(.data)
+    accelbias                                0x200000a4   Data          12  main.o(.data)
+    triggle                                  0x200000b0   Data           1  main.o(.data)
+    tmp                                      0x200000b1   Data           5  main.o(.data)
+    time_record                              0x200000d4   Data           4  testing.o(.data)
+    timestack_cnt                            0x200000d8   Data           2  testing.o(.data)
+    tx_timestamp                             0x200000e0   Data           8  deca_callback.o(.data)
+    rx_timestamp                             0x200000e8   Data           8  deca_callback.o(.data)
+    isframe_sent                             0x200000f0   Data           1  deca_callback.o(.data)
+    istxframe_acked                          0x200000f1   Data           1  deca_callback.o(.data)
+    isreceive_To                             0x200000f2   Data           1  deca_callback.o(.data)
+    isframe_rec                              0x200000f3   Data           1  deca_callback.o(.data)
+    isack_sent                               0x200000f4   Data           1  deca_callback.o(.data)
+    port_deca_isr                            0x200000f8   Data           4  dw1000.o(.data)
+    nrfsta                                   0x200000fc   Data           1  rf24l01.o(.data)
+    TransCop                                 0x200000fd   Data           1  rf24l01.o(.data)
+    sys_cmd_tab                              0x20000100   Data          28  usmart.o(.data)
+    usmart_nametab                           0x2000011c   Data          72  usmart_config.o(.data)
+    usmart_dev                               0x20000164   Data         244  usmart_config.o(.data)
+    beta                                     0x20000290   Data           4  madgwickahrs.o(.data)
+    q0                                       0x20000294   Data           4  madgwickahrs.o(.data)
+    q1                                       0x20000298   Data           4  madgwickahrs.o(.data)
+    q2                                       0x2000029c   Data           4  madgwickahrs.o(.data)
+    q3                                       0x200002a0   Data           4  madgwickahrs.o(.data)
+    __stdout                                 0x200002a4   Data           4  stdout.o(.data)
+    __microlib_freelist                      0x200002a8   Data           4  mvars.o(.data)
+    __microlib_freelist_initialised          0x200002ac   Data           4  mvars.o(.data)
+    hspi1                                    0x200002b4   Data         100  main.o(.bss)
+    hspi2                                    0x20000318   Data         100  main.o(.bss)
+    htim14                                   0x2000037c   Data          60  main.o(.bss)
+    huart1                                   0x200003b8   Data         112  main.o(.bss)
+    IwdgHandle                               0x20000428   Data          20  main.o(.bss)
+    hrtc                                     0x2000043c   Data          32  main.o(.bss)
+    Tx_Buffer                                0x2000045c   Data          33  main.o(.bss)
+    Rx_Buffer                                0x2000047d   Data          33  main.o(.bss)
+    nrf_Tx_Buffer                            0x2000049e   Data          33  main.o(.bss)
+    nrf_Rx_Buffer                            0x200004bf   Data          33  main.o(.bss)
+    MPUdatabuff                              0x200004e0   Data         165  main.o(.bss)
+    usart_rx_buff                            0x20000585   Data          64  main.o(.bss)
+    time_stack                               0x20000610   Data          40  testing.o(.bss)
+    rx_buffer                                0x20000638   Data          35  deca_callback.o(.bss)
+    __heap_base                              0x200006b0   Data           0  startup_stm32f072xb.o(HEAP)
+    __heap_limit                             0x20000ab0   Data           0  startup_stm32f072xb.o(HEAP)
+    __initial_sp                             0x20000eb0   Data           0  startup_stm32f072xb.o(STACK)
 
 
 
@@ -3619,7 +3619,7 @@ Memory Map of the image
 
   Image Entry point : 0x080000c1
 
-  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x0000b08c, Max: 0x00020000, ABSOLUTE, COMPRESSED[0x0000aeec])
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x0000b094, Max: 0x00020000, ABSOLUTE, COMPRESSED[0x0000aee8])
 
     Execution Region ER_IROM1 (Base: 0x08000000, Size: 0x0000ade0, Max: 0x00020000, ABSOLUTE)
 
@@ -3942,37 +3942,37 @@ Memory Map of the image
     0x0800adc0   0x00000020   Data   RO         6096    Region$$Table       anon$$obj.o
 
 
-    Execution Region RW_IRAM1 (Base: 0x20000000, Size: 0x00000ea8, Max: 0x00004000, ABSOLUTE, COMPRESSED[0x0000010c])
+    Execution Region RW_IRAM1 (Base: 0x20000000, Size: 0x00000eb0, Max: 0x00004000, ABSOLUTE, COMPRESSED[0x00000108])
 
     Base Addr    Size         Type   Attr      Idx    E Section Name        Object
 
     0x20000000   0x00000004   Data   RW         2049    .data               stm32f0xx_hal.o
     0x20000004   0x00000004   Data   RW         3388    .data               system_stm32f0xx.o
-    0x20000008   0x000000c4   Data   RW         3664    .data               main.o
-    0x200000cc   0x00000004   Data   RW         3843    .data               delay.o
-    0x200000d0   0x00000006   Data   RW         3894    .data               testing.o
-    0x200000d6   0x00000002   PAD
-    0x200000d8   0x00000015   Data   RW         3979    .data               deca_callback.o
-    0x200000ed   0x00000003   PAD
-    0x200000f0   0x00000004   Data   RW         4148    .data               dw1000.o
-    0x200000f4   0x00000002   Data   RW         4765    .data               rf24l01.o
-    0x200000f6   0x00000002   PAD
-    0x200000f8   0x0000001c   Data   RW         4846    .data               usmart.o
-    0x20000114   0x0000013c   Data   RW         4913    .data               usmart_config.o
-    0x20000250   0x00000038   Data   RW         5115    .data               inv_mpu.o
-    0x20000288   0x00000014   Data   RW         5658    .data               madgwickahrs.o
-    0x2000029c   0x00000004   Data   RW         6067    .data               mc_p.l(stdout.o)
-    0x200002a0   0x00000004   Data   RW         6074    .data               mc_p.l(mvars.o)
-    0x200002a4   0x00000004   Data   RW         6075    .data               mc_p.l(mvars.o)
-    0x200002a8   0x00000004   Data   RW         6079    .data               mc_p.l(errno.o)
-    0x200002ac   0x0000035c   Zero   RW         3662    .bss                main.o
-    0x20000608   0x00000028   Zero   RW         3893    .bss                testing.o
-    0x20000630   0x0000002d   Zero   RW         3978    .bss                deca_callback.o
-    0x2000065d   0x00000003   PAD
-    0x20000660   0x00000038   Zero   RW         4285    .bss                deca_device.o
-    0x20000698   0x00000010   Zero   RW         5423    .bss                inv_mpu_dmp_motion_driver.o
-    0x200006a8   0x00000400   Zero   RW         3417    HEAP                startup_stm32f072xb.o
-    0x20000aa8   0x00000400   Zero   RW         3416    STACK               startup_stm32f072xb.o
+    0x20000008   0x000000c8   Data   RW         3664    .data               main.o
+    0x200000d0   0x00000004   Data   RW         3843    .data               delay.o
+    0x200000d4   0x00000006   Data   RW         3894    .data               testing.o
+    0x200000da   0x00000006   PAD
+    0x200000e0   0x00000015   Data   RW         3979    .data               deca_callback.o
+    0x200000f5   0x00000003   PAD
+    0x200000f8   0x00000004   Data   RW         4148    .data               dw1000.o
+    0x200000fc   0x00000002   Data   RW         4765    .data               rf24l01.o
+    0x200000fe   0x00000002   PAD
+    0x20000100   0x0000001c   Data   RW         4846    .data               usmart.o
+    0x2000011c   0x0000013c   Data   RW         4913    .data               usmart_config.o
+    0x20000258   0x00000038   Data   RW         5115    .data               inv_mpu.o
+    0x20000290   0x00000014   Data   RW         5658    .data               madgwickahrs.o
+    0x200002a4   0x00000004   Data   RW         6067    .data               mc_p.l(stdout.o)
+    0x200002a8   0x00000004   Data   RW         6074    .data               mc_p.l(mvars.o)
+    0x200002ac   0x00000004   Data   RW         6075    .data               mc_p.l(mvars.o)
+    0x200002b0   0x00000004   Data   RW         6079    .data               mc_p.l(errno.o)
+    0x200002b4   0x0000035c   Zero   RW         3662    .bss                main.o
+    0x20000610   0x00000028   Zero   RW         3893    .bss                testing.o
+    0x20000638   0x0000002d   Zero   RW         3978    .bss                deca_callback.o
+    0x20000665   0x00000003   PAD
+    0x20000668   0x00000038   Zero   RW         4285    .bss                deca_device.o
+    0x200006a0   0x00000010   Zero   RW         5423    .bss                inv_mpu_dmp_motion_driver.o
+    0x200006b0   0x00000400   Zero   RW         3417    HEAP                startup_stm32f072xb.o
+    0x20000ab0   0x00000400   Zero   RW         3416    STACK               startup_stm32f072xb.o
 
 
 ==============================================================================
@@ -3994,7 +3994,7 @@ Image component sizes
       3816         86        616         56          0      17674   inv_mpu.o
        724         14          0          0         16       7361   inv_mpu_dmp_motion_driver.o
       5682        138          0         20          0       7894   madgwickahrs.o
-      5492        730         36        196        860      20606   main.o
+      5492        730         36        200        860      20606   main.o
        280         12         34          0          0       3374   mpu9250.o
        562         28         10          2          0       5474   rf24l01.o
         28          8        192          0       2048        580   startup_stm32f072xb.o
@@ -4020,9 +4020,9 @@ Image component sizes
       1386         22          0          0          0       8657   usmart_str.o
 
     ----------------------------------------------------------------------
-     37828       3444       1432        668       3068     723238   Object Totals
+     37828       3444       1432        676       3068     723238   Object Totals
          0          0         32          0          0          0   (incl. Generated)
-        34          0          2          7          3          0   (incl. Padding)
+        34          0          2         11          3          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -4098,15 +4098,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     43080       3634       1432        684       3068     714946   Grand Totals
-     43080       3634       1432        268       3068     714946   ELF Image Totals (compressed)
-     43080       3634       1432        268          0          0   ROM Totals
+     43080       3634       1432        692       3068     714946   Grand Totals
+     43080       3634       1432        264       3068     714946   ELF Image Totals (compressed)
+     43080       3634       1432        264          0          0   ROM Totals
 
 ==============================================================================
 
     Total RO  Size (Code + RO Data)                44512 (  43.47kB)
-    Total RW  Size (RW Data + ZI Data)              3752 (   3.66kB)
-    Total ROM Size (Code + RO Data + RW Data)      44780 (  43.73kB)
+    Total RW  Size (RW Data + ZI Data)              3760 (   3.67kB)
+    Total ROM Size (Code + RO Data + RW Data)      44776 (  43.73kB)
 
 ==============================================================================
 

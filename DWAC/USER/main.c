@@ -207,33 +207,40 @@ static int TDOAprocess_TAG(void)
 	TAGlist_t *ptag;
 	uint8 Poll4TS[12+2+1] = {0x41, 0x88, 0, 0xCA, 0xDE, 0x00, 0x00, 0x01, 0x00, 0x40};
 	uint8 TOcnt=0;
-
+	static uint16 totalcnt=0;
+	static uint16 lostcntac[ANCHORCNT]={0};
+	static uint16 lostcnttag[ANCHORCNT]={0};
+	totalcnt++;
 	if(!sys_config.ACtype)//main anchor
 	{
 		ptag=updatetag(0,1);
 		Poll4TS[10]=(uint8)ptag->tagid;
 		Poll4TS[11]=(uint8)(ptag->tagid>>8);
 		Poll4TS[12]=ptag->seqid;
-		for(j=2;j<sys_config.acnum;j++)//get timestamps from slave anchor
+		for(j=2;j<=sys_config.acnum;j++)//get timestamps from slave anchor
 		{
 			Poll4TS[DESTADD]=(uint8)j;
 			Poll4TS[DESTADD+1]=(uint8)(j>>8);
 			dwt_writetxdata(15, Poll4TS, 0); /* Zero offset in TX buffer. */
 			dwt_writetxfctrl(15, 0, 1); /* Zero offset in TX buffer, ranging. */
-			dwt_setrxtimeout(2000);
-			
+			dwt_setrxtimeout(3000);
 			do
 			{
-				while(dwt_starttx(DWT_START_TX_IMMEDIATE|DWT_RESPONSE_EXPECTED)!=DWT_SUCCESS)
-				{}
-				WAIT_REC_TO(6000)
+				isframe_rec=0;
+				dwt_starttx(DWT_START_TX_IMMEDIATE);
+				WAIT_SENT(2000)
+				isframe_sent=0;
+				dwt_rxenable(DWT_START_RX_IMMEDIATE);
+				WAIT_REC_TO(9000)
 				if(isreceive_To==1)
 				{
 					isreceive_To=0;
 					TOcnt++;
 					if(TOcnt==3)
 					{
+						*((uint64*)ptag->puwbdata+j-1)=0;
 						TOcnt=0;
+						lostcntac[j-1]++;
 						break;
 					}
 				}
@@ -243,23 +250,26 @@ static int TDOAprocess_TAG(void)
 					if(uwbrevbuff[10]==Poll4TS[10]&&uwbrevbuff[11]==Poll4TS[11]&&uwbrevbuff[12]==Poll4TS[12])
 					{
 						TOcnt=0;
-						final_msg_get_ts(Poll4TS+12,(uint64*)ptag->puwbdata+j-1);
+						final_msg_get_ts(uwbrevbuff+13,(uint64*)ptag->puwbdata+j-1);
 						break;
 					}
 					else
 					{
 						TOcnt++;
+						lostcnttag[j-1]++;
 						break;
 					}
 				}					
 			}while(1);
 		}
+		
 		dwt_setrxtimeout(0);
 		
 #ifdef EASY_READ		
+		printf("TAGID: %d Tol:%d\r\n",ptag->tagid,totalcnt);
 		for(i=0;i<sys_config.acnum;i++)
 		{
-			printf("ANCHOR: %d TS: %llx\r\n",i+1,*((uint64*)ptag->puwbdata+i));
+			printf("ANCHOR: %d TS: %llx Lostac:%.3f\r\n",i+1,*((uint64*)ptag->puwbdata+i),(float)lostcntac[i]/(float)totalcnt);
 		}
 #else
 		UpLoad(ptag);
@@ -340,13 +350,16 @@ static int TDOAprocess_mpu_TAG(void)
 			Poll4TS[DESTADD+1]=(uint8)(j>>8);
 			dwt_writetxdata(15, Poll4TS, 0); /* Zero offset in TX buffer. */
 			dwt_writetxfctrl(15, 0, 1); /* Zero offset in TX buffer, ranging. */
-			dwt_setrxtimeout(2000);
+			dwt_setrxtimeout(3000);
 			
 			do
 			{
-				while(dwt_starttx(DWT_START_TX_IMMEDIATE|DWT_RESPONSE_EXPECTED)!=DWT_SUCCESS)
-				{}
-				WAIT_REC_TO(6000)
+				isframe_rec=0;
+				dwt_starttx(DWT_START_TX_IMMEDIATE);
+				WAIT_SENT(2000)
+				isframe_sent=0;
+				dwt_rxenable(DWT_START_RX_IMMEDIATE);
+				WAIT_REC_TO(9000)
 				if(isreceive_To==1)
 				{
 					isreceive_To=0;
@@ -378,6 +391,7 @@ static int TDOAprocess_mpu_TAG(void)
 		dwt_setrxtimeout(0);
 		dwt_rxenable(DWT_START_RX_IMMEDIATE);	
 #ifdef EASY_READ		
+		printf("TAGID: %d\r\n",ptag->tagid);
 		for(i=0;i<sys_config.acnum;i++)
 		{
 			printf("ANCHOR: %d TS: %llx\r\n",i+1,*((uint64*)ptag->puwbdata+i));
@@ -402,11 +416,12 @@ static int TDOAprocess_mpu_TAG(void)
 static int TDOAprocess_AC(void)
 {
 	uint16 tagid;
-	uint8 idx;
-	uint8 Resp4TS[12+2+1+5] = {0x41, 0x88, 0, 0xCA, 0xDE, 0x01, 0x00, 0, 0, 0x82};
+	uint8 Resp4TS[12+2+1+5] = {0x41, 0x88, 0, 0xCA, 0xDE, 0x01, 0x00, 0, 0, 0x41};
 	uint8 isexist=0;
+	uint8 idx;
 	struct list_head *i;
 	TAGlist_t *ptag;
+	
 	Resp4TS[SOURADD]=(uint8)sys_config.id;
 	Resp4TS[SOURADD+1]=(uint8)(sys_config.id>>8);
 	Resp4TS[10]=uwbrevbuff[10];
@@ -422,7 +437,7 @@ static int TDOAprocess_AC(void)
 		list_for_each(i, &TAG_list)
 		{
 			ptag=list_entry2(i, TAGlist_t, taglist);
-			if(ptag->tagid==tagid)
+			if(ptag->tagid==tagid&&ptag->seqid==idx)
 			{
 				isexist=1;
 				break;
@@ -430,18 +445,17 @@ static int TDOAprocess_AC(void)
 		}
 		if(isexist)
 		{
-			final_msg_set_ts(Resp4TS+12,*(uint64*)list_entry2(i, TAGlist_t, taglist)->puwbdata);
+			final_msg_set_ts(Resp4TS+13,*(uint64*)list_entry2(i, TAGlist_t, taglist)->puwbdata);
 
 		}
 		else
 		{
-			final_msg_set_ts(Resp4TS+12,0);
+			final_msg_set_ts(Resp4TS+13,0);
 		}
 		dwt_writetxdata(20, Resp4TS, 0); /* Zero offset in TX buffer. */
 		dwt_writetxfctrl(20, 0, 1); /* Zero offset in TX buffer, ranging. */
-		while(dwt_starttx(DWT_START_TX_IMMEDIATE)!=DWT_SUCCESS)
-		{}
-		WAIT_SENT(2000)
+		dwt_starttx(DWT_START_TX_IMMEDIATE);
+		WAIT_SENT(3000)
 		isframe_sent=0;
 		dwt_rxenable(DWT_START_RX_IMMEDIATE);	
 		return 1;
@@ -454,6 +468,7 @@ static int TDOAprocess_AC(void)
 static int TOAdata_process(void)
 {
 	TAGlist_t *ptag;
+//	static uint16 lost[ANCHORCNT]={0};
 	if(!sys_config.ACtype)
 	{
 		int i;
@@ -536,11 +551,11 @@ static int TOAdata_mpu_process(void)
 		{
 			printf("ANCHOR: %d DIS: %.2f\r\n",i+1,*((float*)ptag->puwbdata+i));
 		}
-//		for(i=0;i<ptag->mpudatacnt/2;i++)
-//		{
-//			printf("%.2f	%.2f\r\n",*(ptag->pmpudata+2*i),*(ptag->pmpudata+2*i+1));
-//		}
-		printf("fail time %d\r\n",ptag->mpudata_fault);
+		for(i=0;i<ptag->mpudatacnt/2;i++)
+		{
+			printf("%.2f	%.2f\r\n",*(ptag->pmpudata+2*i),*(ptag->pmpudata+2*i+1));
+		}
+//		printf("fail time %d\r\n",ptag->mpudata_fault);
 #else
 		UpLoad(ptag);
 #endif		
@@ -637,7 +652,7 @@ static TAGlist_t* updatetag(uint8 mpu_use,uint8 RangingType)
 			*(uint64 *)ptag->puwbdata=rx_timestamp;
 		}
 	}
-	ptag->datatype=0;
+	ptag->datatype=RangingType;
 	ptag->mpudata_fault=0;
 	ptag->acnum=sys_config.acnum;
 	ptag->seqid=idx;
