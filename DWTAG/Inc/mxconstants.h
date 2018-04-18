@@ -40,11 +40,14 @@
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
-
-#define MPU_INT_Pin GPIO_PIN_0
-#define MPU_INT_GPIO_Port GPIOF
-#define MPU_AD0_Pin GPIO_PIN_1
-#define MPU_AD0_GPIO_Port GPIOF
+#define MPU_CE_Pin GPIO_PIN_3
+#define MPU_CE_Port GPIOB
+#define SWICH_Pin GPIO_PIN_8
+#define SWICH_Port GPIOA
+#define LED_Pin GPIO_PIN_11
+#define LED_Port GPIOA
+#define MPU_INT_Pin GPIO_PIN_13
+#define MPU_INT_GPIO_Port GPIOC
 #define SENR_P2_Pin GPIO_PIN_0
 #define SENR_P2_GPIO_Port GPIOA
 #define SENR_P1_Pin GPIO_PIN_1

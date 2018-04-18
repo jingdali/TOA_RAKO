@@ -3,9 +3,9 @@
 //IIC所有操作函数
 #include "stm32f0xx_hal.h"
 typedef uint8_t  u8;
-#define PIN_CLK GPIO_PIN_6
-#define PIN_SDA GPIO_PIN_7
-#define IIC_GPIOx GPIOB
+#define PIN_CLK MPU_SCL_Pin
+#define PIN_SDA MPU_SDA_Pin
+#define IIC_GPIOx MPU_SCL_GPIO_Port
 
 #define IIC_CLK_H() IIC_GPIOx->BSRR = PIN_CLK
 #define IIC_CLK_L() IIC_GPIOx->BRR = PIN_CLK
