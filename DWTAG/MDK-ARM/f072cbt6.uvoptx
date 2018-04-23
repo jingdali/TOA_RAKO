@@ -167,50 +167,34 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>291</LineNumber>
+          <LineNumber>182</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134223558</Address>
+          <Address>134250888</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_rcc.c</Filename>
+          <Filename>../Src/main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\f072cbt6\../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_rcc.c\291</Expression>
+          <Expression>\\f072cbt6\../Src/main.c\182</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>311</LineNumber>
+          <LineNumber>222</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134223712</Address>
+          <Address>134250976</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_rcc.c</Filename>
+          <Filename>../Src/main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\f072cbt6\../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_rcc.c\311</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>325</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134223750</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_rcc.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\f072cbt6\../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_rcc.c\325</Expression>
+          <Expression>\\f072cbt6\../Src/main.c\222</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>

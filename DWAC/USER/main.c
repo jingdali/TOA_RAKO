@@ -66,7 +66,7 @@ sys_config_t sys_config={
 	.timebase=0,
 	.ACtype=0,
 	.id=ANCHOR_NUM,
-	.TBfreq=200,
+	.TBfreq=1000,
 	.acnum=ANCHORCNT,
 };
 uint8_t nrf_Tx_Buffer[33] ; // nrf无线传输发送数据
@@ -110,7 +110,7 @@ int main(void)
 {
 	uint32 addtime;
 	uint32 txtime;
-	addtime=(uint32)((float)sys_config.TBfreq/0.0040064);
+	addtime=(uint32)((float)sys_config.TBfreq/0.0000040064);
 #ifdef	FLASHPROTECT
 	FLASH_Unlock();
 	FLASH_OB_Unlock();
@@ -130,14 +130,22 @@ int main(void)
 	spi_init();
 	system_init();
 //	IWDG_Init(6,625);
-	printf("System initialized successfully......\r\n");
-	printf("Anchor Number: %d	Anchor Type: %d\r\n",sys_config.id, sys_config.ACtype);
+	if(!sys_config.timebase)
+	{	
+		printf("System initialized successfully......\r\n");
+		printf("Anchor Number: %d	Anchor Type: %d\r\n",sys_config.id, sys_config.ACtype);
+	}
+	else
+	{
+		//running as TB
+	}
 	while(1) 
 	{
 //		IWDG_Feed();
 		if(sys_config.timebase)
 		{
-			WAIT_SENT(2000)
+//			WAIT_SENT(3000*200)
+			while(!isframe_sent);
 			isframe_sent=0;
 			tx_timestamp=get_tx_timestamp_u64();
 			txtime=(uint32)(tx_timestamp>>8)+addtime; 
@@ -149,7 +157,7 @@ int main(void)
 			TBPOLL[UWBFREQ2]=(uint8)(sys_config.TBfreq>>8);
 			dwt_writetxdata(sizeof(TBPOLL), TBPOLL, 0); /* Zero offset in TX buffer. */
 			dwt_writetxfctrl(sizeof(TBPOLL), 0, 1); /* Zero offset in TX buffer, ranging. */
-			while(dwt_starttx(DWT_START_TX_DELAYED)!=DWT_SUCCESS);	
+			dwt_starttx(DWT_START_TX_DELAYED);	
 
 		}
 		else
@@ -782,7 +790,6 @@ int TWRresp(void)
 			goto error2;	
 	}
 	WAIT_SENT(2000)
-	{}
 	isframe_sent=0;
 	dwt_setrxaftertxdelay(0);
 	dwt_setrxtimeout(0);
@@ -847,6 +854,7 @@ static void dw1000_init(void)
     /* Activate auto-acknowledgement. Time is set to 0 so that the ACK is sent as soon as possible after reception of a frame. */
     dwt_enableautoack(8);
 		dwt_setrxtimeout(0);
+		dwt_setlnapamode(1,1);
 }
 
 static void system_init(void)
@@ -867,6 +875,19 @@ static void system_init(void)
 	if(!sys_config.timebase)
 	{
 		dwt_rxenable(DWT_START_RX_IMMEDIATE);
+	}
+	else
+	{
+		sys_config.id=0;
+		TBPOLL[FRAME_SN_IDX]=frame_seq_nb++;	
+		TBPOLL[WLIDX]=0;
+		TBPOLL[WRIDX]=0;
+		TBPOLL[UWBFREQ1]=(uint8)sys_config.TBfreq;
+		TBPOLL[UWBFREQ2]=(uint8)(sys_config.TBfreq>>8);
+		dwt_writetxdata(sizeof(TBPOLL), TBPOLL, 0); /* Zero offset in TX buffer. */
+		dwt_writetxfctrl(sizeof(TBPOLL), 0, 1); /* Zero offset in TX buffer, ranging. */
+		dwt_starttx(DWT_START_TX_IMMEDIATE);
+
 	}
 	pglobalmpudata=(float*)malloc(MAX_MPUDATA_CNT);
 

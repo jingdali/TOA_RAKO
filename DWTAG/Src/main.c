@@ -392,20 +392,16 @@ static void TBprocess(void)
 {
 	uint32 addtime;
 	uint32 txtime;
-	addtime=(uint32)((float)sys_config.TBfreq/0.0040064);
-	WAIT_SENT(2000)
+	addtime=(uint32)((float)sys_config.TBfreq/0.0000040064);
+	
+	WAIT_SENT(200*3000)
 	isframe_sent=0;
 	tx_timestamp=get_tx_timestamp_u64();
 	txtime=(uint32)(tx_timestamp>>8)+addtime; 
 	dwt_setdelayedtrxtime(txtime);
-	tx_poll_msg[FRAME_IDX]=dw_txseq_num++;	
-	tx_poll_msg[WLIDX]=0;
-	tx_poll_msg[WRIDX]=0;
-	tx_poll_msg[UWBFREQ1]=(uint8)sys_config.TBfreq;
-	tx_poll_msg[UWBFREQ2]=(uint8)(sys_config.TBfreq>>8);
 	dwt_writetxdata(sizeof(tx_poll_msg), tx_poll_msg, 0); /* Zero offset in TX buffer. */
 	dwt_writetxfctrl(sizeof(tx_poll_msg), 0, 1); /* Zero offset in TX buffer, ranging. */
-	while(dwt_starttx(DWT_START_TX_DELAYED)!=DWT_SUCCESS);	
+	dwt_starttx(DWT_START_TX_DELAYED);	
 }
 
 static void get_wdaccel(void)
@@ -486,6 +482,17 @@ static void sysconfig_init(void)
 		}
 			
 	}	
+	else
+	{
+		tx_poll_msg[FRAME_IDX]=dw_txseq_num++;	
+		tx_poll_msg[WLIDX]=0;
+		tx_poll_msg[WRIDX]=0;
+		tx_poll_msg[UWBFREQ1]=(uint8)sys_config.TBfreq;
+		tx_poll_msg[UWBFREQ2]=(uint8)(sys_config.TBfreq>>8);		
+		dwt_writetxdata(sizeof(tx_poll_msg), tx_poll_msg, 0); /* Zero offset in TX buffer. */
+		dwt_writetxfctrl(sizeof(tx_poll_msg), 0, 1); /* Zero offset in TX buffer, ranging. */
+		dwt_starttx(DWT_START_TX_IMMEDIATE);	
+	}
 
 }
 static void EXTI4_15_IRQHandler_Config(void)
@@ -648,7 +655,7 @@ static int dw1000_init(void)
 	dwt_setpanid(pan_id);
   dwt_seteui(eui);
   dwt_setaddress16(sys_config.id);
-	//dwt_setleds(DWT_LEDS_ENABLE);//set the led
+	dwt_setleds(DWT_LEDS_ENABLE);//set the led
 	dwt_setlnapamode(1,1);
 	port_set_deca_isr(dwt_isr);		
 	dwt_setcallbacks(&tx_conf_cb, &rx_ok_cb, &rx_to_cb, &rx_err_cb);
@@ -964,12 +971,16 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_PeriphCLKInitTypeDef PeriphClkInit;
-
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+	RCC_OscInitStruct.LSIState = RCC_LSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = 16;
+//  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSE;
+//  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+//  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+//  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
   RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
   RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -987,21 +998,14 @@ void SystemClock_Config(void)
     Error_Handler();
   }
 
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1;
-  PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK1;
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
-  {
-    Error_Handler();
-  }
-	
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
-  PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
+  PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
   }
 
-  HAL_RCC_EnableCSS();
+//  HAL_RCC_EnableCSS();
 
   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
 
@@ -1010,6 +1014,7 @@ void SystemClock_Config(void)
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
+
 
 void SYSCLKConfig_STOP(void)
 {
