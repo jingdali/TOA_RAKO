@@ -214,6 +214,8 @@ int main(void)
 //	IWDG_init(40000);
 //	IWDG_Feed();
 	tim14_int=0;
+	
+
 	while(1)
 	{
 //		IWDG_Feed();
@@ -437,6 +439,16 @@ static void get_wdaccel(void)
 static void sysconfig_init(void)
 {
 	dw1000_init();
+	
+//	dwt_setrxtimeout(8000);
+	dwt_rxenable(DWT_START_RX_IMMEDIATE);
+	while(1)
+	{
+//		WAIT_REC_TO(24000)
+//		delay_ms(1000);
+//		dwt_rxenable(DWT_START_RX_IMMEDIATE);
+	}
+	
 	sys_config.panchordis=(float*)malloc(sys_config.anchorcnt*sizeof(float));
 	if(sys_config.mpu_use==1)
 	{
@@ -656,7 +668,7 @@ static int dw1000_init(void)
   dwt_seteui(eui);
   dwt_setaddress16(sys_config.id);
 	dwt_setleds(DWT_LEDS_ENABLE);//set the led
-	dwt_setlnapamode(1,1);
+
 	port_set_deca_isr(dwt_isr);		
 	dwt_setcallbacks(&tx_conf_cb, &rx_ok_cb, &rx_to_cb, &rx_err_cb);
 	dwt_setrxantennadelay(RX_ANT_DLY);
@@ -676,7 +688,7 @@ static int dw1000_init(void)
 //	sleep_cnt = ((SLEEP_TIME_MS * lp_osc_freq) / 1000) >> 12;	
 //dwt_configuresleepcnt(sleep_cnt);
 	dwt_configuresleep(DWT_PRESRV_SLEEP | DWT_CONFIG |DWT_LLDLOAD|DWT_LLD0, DWT_WAKE_WK | DWT_SLP_EN);
-	
+	dwt_setlnapamode(1,1);
 	return 0;
 }
 /*
@@ -1217,13 +1229,6 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(MPU_INT_GPIO_Port, &GPIO_InitStruct);
 
 
-  /*Configure GPIO pins : SENR_P2_Pin SENR_P1_Pin SENL_P2_Pin SENL_P1_Pin */
-  GPIO_InitStruct.Pin = SENR_P2_Pin|SENR_P1_Pin|SENL_P2_Pin|SENL_P1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
   /*Configure GPIO pin : DW_IRQ_Pin */
   GPIO_InitStruct.Pin = DW_IRQ_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
@@ -1272,8 +1277,6 @@ static void MX_GPIO_Init(void)
 
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, SENR_P2_Pin|SENR_P1_Pin|SPI1_NSS_Pin|SENL_P2_Pin 
-                          |SENL_P1_Pin, GPIO_PIN_SET);
 
 //  /*Configure GPIO pin Output Level */
 //  HAL_GPIO_WritePin(NRF_CE_GPIO_Port, NRF_CE_Pin, GPIO_PIN_SET);

@@ -48,10 +48,7 @@
 #define LED_Port GPIOA
 #define MPU_INT_Pin GPIO_PIN_13
 #define MPU_INT_GPIO_Port GPIOC
-#define SENR_P2_Pin GPIO_PIN_0
-#define SENR_P2_GPIO_Port GPIOA
-#define SENR_P1_Pin GPIO_PIN_1
-#define SENR_P1_GPIO_Port GPIOA
+
 #define DW_IRQ_Pin GPIO_PIN_2
 #define DW_IRQ_GPIO_Port GPIOA
 #define NRF_CE_Pin GPIO_PIN_3
@@ -66,10 +63,7 @@
 #define DWRESET_GPIO_Port GPIOB
 #define SPI2_NSS_Pin GPIO_PIN_12
 #define SPI2_NSS_GPIO_Port GPIOB
-#define SENL_P2_Pin GPIO_PIN_8
-#define SENL_P2_GPIO_Port GPIOA
-#define SENL_P1_Pin GPIO_PIN_11
-#define SENL_P1_GPIO_Port GPIOA
+
 #define SENL_INT_Pin GPIO_PIN_15
 #define SENL_INT_GPIO_Port GPIOA
 #define SENR_INT_Pin GPIO_PIN_4
