@@ -439,16 +439,6 @@ static void get_wdaccel(void)
 static void sysconfig_init(void)
 {
 	dw1000_init();
-	
-//	dwt_setrxtimeout(8000);
-	dwt_rxenable(DWT_START_RX_IMMEDIATE);
-	while(1)
-	{
-//		WAIT_REC_TO(24000)
-//		delay_ms(1000);
-//		dwt_rxenable(DWT_START_RX_IMMEDIATE);
-	}
-	
 	sys_config.panchordis=(float*)malloc(sys_config.anchorcnt*sizeof(float));
 	if(sys_config.mpu_use==1)
 	{
