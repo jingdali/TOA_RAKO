@@ -88,7 +88,7 @@ sys_config_t sys_config = {
 	.mpudatacnt=200,//200*float
 	.mpufreq=10,//ms
 	.uwbfreq=1000,//ms
-	.TBfreq=200,//ms
+	.TBfreq=1000,//ms
 	.id=TAG_ID,
 	.anchorcnt=QUANTITY_ANCHOR,
 	.panchordis=NULL,
@@ -679,6 +679,7 @@ static int dw1000_init(void)
 //dwt_configuresleepcnt(sleep_cnt);
 	dwt_configuresleep(DWT_PRESRV_SLEEP | DWT_CONFIG |DWT_LLDLOAD|DWT_LLD0, DWT_WAKE_WK | DWT_SLP_EN);
 	dwt_setlnapamode(1,1);
+	dwt_write16bitoffsetreg(PMSC_ID,PMSC_RES3_OFFSET+2,0);
 	return 0;
 }
 /*

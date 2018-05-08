@@ -855,6 +855,7 @@ static void dw1000_init(void)
     dwt_enableautoack(8);
 		dwt_setrxtimeout(0);
 		dwt_setlnapamode(1,1);
+		dwt_write16bitoffsetreg(PMSC_ID,PMSC_RES3_OFFSET+2,0);
 }
 
 static void system_init(void)

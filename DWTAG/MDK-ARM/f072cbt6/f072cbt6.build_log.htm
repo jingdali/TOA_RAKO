@@ -28,22 +28,20 @@ Project File Date:  03/14/2018
 *** Using Compiler 'V5.06 update 4 (build 422)', folder: 'D:\Program Files\keil_v5\ARM\ARMCC\Bin'
 Build target 'f072cbt6'
 compiling main.c...
-../Src/main.c(452): warning:  #111-D: statement is unreachable
-        sys_config.panchordis=(float*)malloc(sys_config.anchorcnt*sizeof(float));
-../Src/main.c(512): warning:  #177-D: variable "GPIO_InitStructure"  was declared but never referenced
+../Src/main.c(502): warning:  #177-D: variable "GPIO_InitStructure"  was declared but never referenced
     GPIO_InitTypeDef   GPIO_InitStructure;
-../Src/main.c(541): warning:  #177-D: variable "i"  was declared but never referenced
+../Src/main.c(531): warning:  #177-D: variable "i"  was declared but never referenced
         unsigned char i;
-../Src/main.c(542): warning:  #177-D: variable "tanscnt"  was declared but never referenced
+../Src/main.c(532): warning:  #177-D: variable "tanscnt"  was declared but never referenced
         uint8 tanscnt=sys_config.mpudatacnt*sizeof(float)/100;
-../Src/main.c(938): warning:  #177-D: function "IWDG_init"  was declared but never referenced
+../Src/main.c(929): warning:  #177-D: function "IWDG_init"  was declared but never referenced
   void IWDG_init(uint32_t LsiFreq)
-../Src/main.c(967): warning:  #177-D: function "IWDG_Feed"  was declared but never referenced
+../Src/main.c(958): warning:  #177-D: function "IWDG_Feed"  was declared but never referenced
   void IWDG_Feed(void)
-../Src/main.c: 6 warnings, 0 errors
+../Src/main.c: 5 warnings, 0 errors
 linking...
-Program Size: Code=27952 RO-data=744 RW-data=604 ZI-data=2028  
-"f072cbt6\f072cbt6.axf" - 0 Error(s), 6 Warning(s).
+Program Size: Code=44076 RO-data=1432 RW-data=692 ZI-data=3068  
+"f072cbt6\f072cbt6.axf" - 0 Error(s), 5 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -61,7 +59,7 @@ Package Vendor: ARM
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.0.1
-Build Time Elapsed:  00:00:05
+Build Time Elapsed:  00:00:12
 </pre>
 </body>
 </html>
