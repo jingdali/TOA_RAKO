@@ -51,12 +51,12 @@
 
 #define DW_IRQ_Pin GPIO_PIN_2
 #define DW_IRQ_GPIO_Port GPIOA
-#define NRF_CE_Pin GPIO_PIN_3
-#define NRF_CE_GPIO_Port GPIOA
 #define SPI1_NSS_Pin GPIO_PIN_4
 #define SPI1_NSS_GPIO_Port GPIOA
-#define NRF_INT_Pin GPIO_PIN_1
-#define NRF_INT_GPIO_Port GPIOB
+#define ALT1_Pin GPIO_PIN_1
+#define ALT1_GPIO_Port GPIOB
+#define ALT2_Pin GPIO_PIN_2
+#define ALT2_GPIO_Port GPIOB
 #define DWWAKE_Pin GPIO_PIN_10
 #define DWWAKE_GPIO_Port GPIOB
 #define DWRESET_Pin GPIO_PIN_11

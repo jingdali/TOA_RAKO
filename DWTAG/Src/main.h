@@ -5,7 +5,6 @@
 #include "deca_types.h"  
 #include "usmart.h"
 #include "stdint.h"
-#include "rf24l01.h"
 #include "delay.h"
 #include "math.h"
 

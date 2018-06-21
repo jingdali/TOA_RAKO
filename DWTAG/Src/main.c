@@ -974,16 +974,24 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_PeriphCLKInitTypeDef PeriphClkInit;
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-	RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = 16;
+	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+
 //  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSE;
 //  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
 //  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
 //  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+	
+//  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI;
+//  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+//	RCC_OscInitStruct.LSIState = RCC_LSI_ON;
+//  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+	
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSI;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.LSEState = RCC_LSI_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+	
   RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
   RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -1265,12 +1273,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  /*Configure GPIO pins : ALTx_Pins  */
+  GPIO_InitStruct.Pin = ALT1_Pin|ALT2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-
-  /*Configure GPIO pin Output Level */
-
-//  /*Configure GPIO pin Output Level */
-//  HAL_GPIO_WritePin(NRF_CE_GPIO_Port, NRF_CE_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, DWWAKE_Pin|MPU_SCL_Pin|MPU_SDA_Pin, GPIO_PIN_RESET);
