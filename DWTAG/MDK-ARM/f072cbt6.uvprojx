@@ -574,11 +574,6 @@
               <FileType>1</FileType>
               <FilePath>..\Drivers\Hardware\decadriver\deca_params_init.c</FilePath>
             </File>
-            <File>
-              <FileName>rf24l01.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\Hardware\NRF24l01\rf24l01.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>

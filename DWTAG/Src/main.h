@@ -5,7 +5,6 @@
 #include "deca_types.h"  
 #include "usmart.h"
 #include "stdint.h"
-#include "rf24l01.h"
 #include "delay.h"
 #include "math.h"
 
@@ -62,7 +61,7 @@ while(!isreceive_To&&!isframe_rec) \
 #define WAIT_REC_ACK(t)	{uint16 __t=t; \
 while(!isreceive_To&&!istxframe_acked) \
 {__t?__t--:isreceive_To++;}}
-#define WAIT_SENT(t)	{uint16 __t=t; \
+#define WAIT_SENT(t)	{uint32 __t=t; \
 while(!isframe_sent&&__t) \
 {__t--;}}
 

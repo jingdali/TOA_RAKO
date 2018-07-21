@@ -95,7 +95,7 @@ while(!isreceive_To&&!istxframe_acked) \
 while(!isreceive_To&&!isframe_rec) \
 {__t?__t--:isreceive_To++;}}
 
-#define WAIT_SENT(t)	{uint16 __t=t; \
+#define WAIT_SENT(t)	{uint32 __t=t; \
 while(!isframe_sent&&__t) \
 {__t--;}}
 

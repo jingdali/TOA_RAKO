@@ -34,7 +34,6 @@
 "f072cbt6\dw1000.o"
 "f072cbt6\deca_device.o"
 "f072cbt6\deca_params_init.o"
-"f072cbt6\rf24l01.o"
 "f072cbt6\usmart.o"
 "f072cbt6\usmart_config.o"
 "f072cbt6\usmart_str.o"

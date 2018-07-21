@@ -18,7 +18,6 @@ struct _m_usmart_nametab usmart_nametab[]=
 	(void*)read_addr,"uint32_t read_addr(uint32_t addr)",
 	(void*)write_addr,"void write_addr(uint32_t addr,uint32_t val)",	 
 #endif
-	(void*)NRF_Test,"void NRF_Test(uint8_t stat)",
 	(void*)unlockflash,"void unlockflash(unsigned int passwd)",
 	(void*)going,"void going(void)",
 	(void*)Read_status,"void Read_status(void)",

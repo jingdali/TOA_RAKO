@@ -26,7 +26,8 @@ int MPU9250_Init(void)
 	unsigned char *p;
 	int i;
 	__set_PRIMASK(1);
-
+	MPU_enable();
+	Delay_ms(5);
 	if(mpu_init(&int_param))
 	{
 		__set_PRIMASK(0);
@@ -80,6 +81,15 @@ int MPU9250_Init(void)
 	__set_PRIMASK(0);
 	return 0;
 }
+void MPU_enable(void)
+{
+	MPU_CE_Port->BSRR = MPU_CE_Pin;
+}
+void MPU_disable(void)
+{
+	MPU_CE_Port->BRR = MPU_CE_Pin;
+}
+
 void run_self_test(void)
 {
     int result;

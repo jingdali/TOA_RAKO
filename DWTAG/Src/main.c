@@ -82,13 +82,13 @@ static dwt_config_t config = {
 uint16 Acaddrtable[QUANTITY_ANCHOR]={0x01,0x02,0x03,0x04,0x05};
 sys_config_t sys_config = {
 	.rangingtype=0,	/* 0 --> TOA , 1 --> TDOA */
-	.timebase=0,	/* 1 --> use timebase */
+	.timebase=1,	/* 1 --> use timebase */
 	.mpu_use=0,		/* 1 --> use mpu */
 	.pmpudata=NULL,
 	.mpudatacnt=200,//200*float
 	.mpufreq=10,//ms
 	.uwbfreq=1000,//ms
-	.TBfreq=200,//ms
+	.TBfreq=1000,//ms
 	.id=TAG_ID,
 	.anchorcnt=QUANTITY_ANCHOR,
 	.panchordis=NULL,
@@ -103,7 +103,6 @@ void Error_Handler(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_SPI2_Init(void);
-static void MX_SPI1_Init(void);
 static void MX_TIM14_Init(void);
 static void IWDG_init(uint32_t LsiFreq);
 static void IWDG_Feed(void);
@@ -112,7 +111,7 @@ static void MX_RTC_Init(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 static void EXTI2_3_IRQHandler_Config(void);
-static void EXTI0_1_IRQHandler_Config(void);
+static void EXTI4_15_IRQHandler_Config(void);
 void SYSCLKConfig_STOP(void);
 void dw_setARER(int enable);
 void dw_closeack(void);
@@ -177,13 +176,6 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
-//	uint16 lp_osc_freq, sleep_cnt;
-//	uint32 txtime=0;
-//	uint16 transcnt=0;
-//	unsigned long sensor_timestamp;
-//	uint8_t tmp_buf[12];
-//	uint8_t j,key,flag,MPUdatacnt=0;
   /* USER CODE END 1 */
   /* MCU Configuration----------------------------------------------------------*/
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
@@ -194,7 +186,6 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   MX_SPI2_Init();
-  MX_SPI1_Init();
   MX_TIM14_Init();
 	MX_RTC_Init();
   /* USER CODE BEGIN 2 */
@@ -209,12 +200,11 @@ int main(void)
 	HAL_FLASH_OB_Lock();
 	HAL_FLASH_Lock();
 #endif
-	SPI1->CR1|=SPI_CR1_SPE;//nrf_SPI£¬doesn'e use hal lib
 	//disable systick interrupt , I will use the systick in IIC. The hal_delay is strong defined in delay.c
 	delay_init();
 	usmart_init(48);//in this case, parameter is useless
 	HAL_UART_Receive_IT(&huart1, usart_rx_buff, 64);
-	EXTI0_1_IRQHandler_Config();
+	EXTI4_15_IRQHandler_Config();
 	EXTI2_3_IRQHandler_Config();
 	EXTI->PR = 0x7bffff;//clear pending bits
 	HAL_TIM_Base_Start_IT(&htim14);//tim14é_Ê¼Ó‹•r
@@ -224,12 +214,14 @@ int main(void)
 //	IWDG_init(40000);
 //	IWDG_Feed();
 	tim14_int=0;
+	
+
 	while(1)
 	{
 //		IWDG_Feed();
 		if(sys_config.timebase==1)
 		{
-			TBprocess();
+			TBprocess(); 
 		}
 		else
 		{
@@ -402,20 +394,16 @@ static void TBprocess(void)
 {
 	uint32 addtime;
 	uint32 txtime;
-	addtime=(uint32)((float)sys_config.TBfreq/0.0040064);
-	WAIT_SENT(2000)
+	addtime=(uint32)((float)sys_config.TBfreq/0.0000040064);
+	
+	WAIT_SENT(200*3000)
 	isframe_sent=0;
 	tx_timestamp=get_tx_timestamp_u64();
 	txtime=(uint32)(tx_timestamp>>8)+addtime; 
 	dwt_setdelayedtrxtime(txtime);
-	tx_poll_msg[FRAME_IDX]=dw_txseq_num++;	
-	tx_poll_msg[WLIDX]=0;
-	tx_poll_msg[WRIDX]=0;
-	tx_poll_msg[UWBFREQ1]=(uint8)sys_config.TBfreq;
-	tx_poll_msg[UWBFREQ2]=(uint8)(sys_config.TBfreq>>8);
 	dwt_writetxdata(sizeof(tx_poll_msg), tx_poll_msg, 0); /* Zero offset in TX buffer. */
 	dwt_writetxfctrl(sizeof(tx_poll_msg), 0, 1); /* Zero offset in TX buffer, ranging. */
-	while(dwt_starttx(DWT_START_TX_DELAYED)!=DWT_SUCCESS);	
+	dwt_starttx(DWT_START_TX_DELAYED);	
 }
 
 static void get_wdaccel(void)
@@ -496,17 +484,33 @@ static void sysconfig_init(void)
 		}
 			
 	}	
+	else
+	{
+		tx_poll_msg[FRAME_IDX]=dw_txseq_num++;	
+		tx_poll_msg[WLIDX]=0;
+		tx_poll_msg[WRIDX]=0;
+		tx_poll_msg[UWBFREQ1]=(uint8)sys_config.TBfreq;
+		tx_poll_msg[UWBFREQ2]=(uint8)(sys_config.TBfreq>>8);		
+		dwt_writetxdata(sizeof(tx_poll_msg), tx_poll_msg, 0); /* Zero offset in TX buffer. */
+		dwt_writetxfctrl(sizeof(tx_poll_msg), 0, 1); /* Zero offset in TX buffer, ranging. */
+		dwt_starttx(DWT_START_TX_IMMEDIATE);	
+	}
 
 }
-
-static void EXTI2_3_IRQHandler_Config(void)
+static void EXTI4_15_IRQHandler_Config(void)
 {
   GPIO_InitTypeDef   GPIO_InitStructure;
 
-
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+	__HAL_RCC_GPIOB_CLK_ENABLE();
+  /* Enable and set EXTI line 0_1 Interrupt to the lowest priority */
+  HAL_NVIC_SetPriority(EXTI4_15_IRQn, 2, 0);
+  HAL_NVIC_EnableIRQ(EXTI4_15_IRQn);
+}
+static void EXTI2_3_IRQHandler_Config(void)
+{
+  GPIO_InitTypeDef   GPIO_InitStructure;
   __HAL_RCC_GPIOA_CLK_ENABLE();
-
-
   GPIO_InitStructure.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStructure.Pull = GPIO_PULLDOWN;
   GPIO_InitStructure.Pin = DW_IRQ_Pin;
@@ -567,23 +571,7 @@ int mpudata_send2MA(void)
 	return 0;
 }
 
-static void EXTI0_1_IRQHandler_Config(void)
-{
-  GPIO_InitTypeDef   GPIO_InitStructure;
 
-
-  __HAL_RCC_GPIOB_CLK_ENABLE();
-
-
-  GPIO_InitStructure.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStructure.Pull = GPIO_PULLUP;
-  GPIO_InitStructure.Pin = NRF_INT_Pin;
-  HAL_GPIO_Init(NRF_INT_GPIO_Port, &GPIO_InitStructure);
-
-  /* Enable and set EXTI line 0_1 Interrupt to the lowest priority */
-  HAL_NVIC_SetPriority(EXTI0_1_IRQn, 2, 0);
-  HAL_NVIC_EnableIRQ(EXTI0_1_IRQn);
-}
 
 void dw_setARER(int enable)
 {
@@ -669,7 +657,8 @@ static int dw1000_init(void)
 	dwt_setpanid(pan_id);
   dwt_seteui(eui);
   dwt_setaddress16(sys_config.id);
-	//dwt_setleds(DWT_LEDS_ENABLE);//set the led
+	dwt_setleds(DWT_LEDS_ENABLE);//set the led
+
 	port_set_deca_isr(dwt_isr);		
 	dwt_setcallbacks(&tx_conf_cb, &rx_ok_cb, &rx_to_cb, &rx_err_cb);
 	dwt_setrxantennadelay(RX_ANT_DLY);
@@ -689,6 +678,8 @@ static int dw1000_init(void)
 //	sleep_cnt = ((SLEEP_TIME_MS * lp_osc_freq) / 1000) >> 12;	
 //dwt_configuresleepcnt(sleep_cnt);
 	dwt_configuresleep(DWT_PRESRV_SLEEP | DWT_CONFIG |DWT_LLDLOAD|DWT_LLD0, DWT_WAKE_WK | DWT_SLP_EN);
+	dwt_setlnapamode(1,1);
+	dwt_write16bitoffsetreg(PMSC_ID,PMSC_RES3_OFFSET+2,0);
 	return 0;
 }
 /*
@@ -983,13 +974,24 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_PeriphCLKInitTypeDef PeriphClkInit;
-
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-	RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = 16;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+
+//  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSE;
+//  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+//  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
+//  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+	
+//  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI;
+//  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+//	RCC_OscInitStruct.LSIState = RCC_LSI_ON;
+//  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+	
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSI;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.LSEState = RCC_LSI_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+	
   RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
   RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -1007,19 +1009,15 @@ void SystemClock_Config(void)
     Error_Handler();
   }
 
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1;
-  PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK1;
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
-  {
-    Error_Handler();
-  }
-	
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
   }
+
+//  HAL_RCC_EnableCSS();
+
   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
 
   HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
@@ -1027,6 +1025,8 @@ void SystemClock_Config(void)
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
+
+
 void SYSCLKConfig_STOP(void)
 {
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
@@ -1041,9 +1041,12 @@ void SYSCLKConfig_STOP(void)
   HAL_RCC_GetOscConfig(&RCC_OscInitStruct);
 
   /* After wake-up from STOP reconfigure the system clock: Enable HSI and PLL */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSEState = RCC_HSI_ON;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
+  RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -1073,9 +1076,15 @@ void SYSCLKConfig_STOP(void)
   }
 	
 }
+/* RTC init function */
 static void MX_RTC_Init(void)
 {
 
+  RTC_TimeTypeDef sTime;
+  RTC_DateTypeDef sDate;
+
+    /**Initialize RTC and set the Time and Date 
+    */
   hrtc.Instance = RTC;
   hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
   hrtc.Init.AsynchPrediv = 127;
@@ -1088,33 +1097,29 @@ static void MX_RTC_Init(void)
     Error_Handler();
   }
 
-
-    /**Enable Calibration 
-    */
-  if (HAL_RTCEx_SetCalibrationOutPut(&hrtc, RTC_CALIBOUTPUT_512HZ) != HAL_OK)
+  sTime.Hours = 0x0;
+  sTime.Minutes = 0x0;
+  sTime.Seconds = 0x0;
+  sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+  sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
   {
     Error_Handler();
   }
-}
-/* SPI1 init function */
-static void MX_SPI1_Init(void)
-{
 
-  hspi1.Instance = SPI1;
-  hspi1.Init.Mode = SPI_MODE_MASTER;
-  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
-  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
-  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
-  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi1.Init.CRCPolynomial = 7;
-  hspi1.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
-  hspi1.Init.NSSPMode = SPI_NSS_PULSE_DISABLE;
-  if (HAL_SPI_Init(&hspi1) != HAL_OK)
+  sDate.WeekDay = RTC_WEEKDAY_MONDAY;
+  sDate.Month = RTC_MONTH_JANUARY;
+  sDate.Date = 0x1;
+  sDate.Year = 0x0;
+
+  if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+    /**Enable the WakeUp 
+    */
+  if (HAL_RTCEx_SetWakeUpTimer_IT(&hrtc, 16383, RTC_WAKEUPCLOCK_RTCCLK_DIV2) != HAL_OK)
   {
     Error_Handler();
   }
@@ -1199,26 +1204,29 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+	__HAL_RCC_GPIOC_CLK_ENABLE();
 
+  GPIO_InitStruct.Pin = SWICH_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(SWICH_Port, &GPIO_InitStruct);
+	
+  GPIO_InitStruct.Pin = MPU_CE_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(MPU_CE_Port, &GPIO_InitStruct);
+	
+  GPIO_InitStruct.Pin = LED_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(LED_Port, &GPIO_InitStruct);
+	
   /*Configure GPIO pin : MPU_INT_Pin */
   GPIO_InitStruct.Pin = MPU_INT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(MPU_INT_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : MPU_AD0_Pin */
-  GPIO_InitStruct.Pin = MPU_AD0_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(MPU_AD0_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : SENR_P2_Pin SENR_P1_Pin SENL_P2_Pin SENL_P1_Pin */
-  GPIO_InitStruct.Pin = SENR_P2_Pin|SENR_P1_Pin|SENL_P2_Pin|SENL_P1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : DW_IRQ_Pin */
   GPIO_InitStruct.Pin = DW_IRQ_Pin;
@@ -1226,25 +1234,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(DW_IRQ_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : NRF_CE_Pin */
-  GPIO_InitStruct.Pin = NRF_CE_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(NRF_CE_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : SPI1_NSS_Pin */
-  GPIO_InitStruct.Pin = SPI1_NSS_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(SPI1_NSS_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : NRF_INT_Pin */
-  GPIO_InitStruct.Pin = NRF_INT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(NRF_INT_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : DWWAKE_Pin */
   GPIO_InitStruct.Pin = DWWAKE_Pin;
@@ -1281,19 +1270,16 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pins : MPU_SCL_Pin MPU_SDA_Pin */
   GPIO_InitStruct.Pin = MPU_SCL_Pin|MPU_SDA_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  /*Configure GPIO pins : ALTx_Pins  */
+  GPIO_InitStruct.Pin = ALT1_Pin|ALT2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(MPU_AD0_GPIO_Port, MPU_AD0_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, SENR_P2_Pin|SENR_P1_Pin|SPI1_NSS_Pin|SENL_P2_Pin 
-                          |SENL_P1_Pin, GPIO_PIN_SET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(NRF_CE_GPIO_Port, NRF_CE_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, DWWAKE_Pin|MPU_SCL_Pin|MPU_SDA_Pin, GPIO_PIN_RESET);

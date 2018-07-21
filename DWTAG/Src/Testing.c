@@ -2,36 +2,7 @@
 uint32 time_record;
 uint32 time_stack[10];
 uint16 timestack_cnt=0;
-void NRF_Test(uint8_t cmd)
-{
-	uint8_t state;
-	switch (cmd)
-	{
-		case  1:
-		printf("%d\r\n",HAL_GPIO_ReadPin(NRF_INT_GPIO_Port,NRF_INT_Pin));
-		break;
-		
-		case  2:
-		__HAL_GPIO_EXTI_GENERATE_SWIT(NRF_INT_Pin) ;
-		break;
-		case	3:			
-			printf("0x%x\r\n",NRF24L01_Read_Reg(STATUS) );break;
-		
-		case  4:NRF24L01_TX_Mode();	break;
-		case 	5:NRF24L01_RX_Mode();	break;
-		case  6:
-				state=NRF24L01_Read_Reg(STATUS);  //读取状态寄存器的值	   
-				NRF24L01_Write_Reg(NRF_WRITE_REG+STATUS,state); //清除TX_DS或MAX_RT中断标志
-				NRF24L01_Write_Reg(FLUSH_TX,0xff);//清除TX FIFO寄存器 
-			break;
-		
-		
-		default:break;
-		}			
-		
-				
-				
-}
+
 void unlockflash(unsigned int passwd)
 {
 	

@@ -63,6 +63,7 @@ void NMI_Handler(void)
   /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
 
   /* USER CODE END NonMaskableInt_IRQn 0 */
+	HAL_RCC_NMI_IRQHandler();
   /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
 
   /* USER CODE END NonMaskableInt_IRQn 1 */
@@ -236,35 +237,21 @@ void EXTI2_3_IRQHandler(void)
 	
 }
 //NRF24l01 中断服务 MPU int
-void EXTI0_1_IRQHandler(void)
+void EXTI4_15_IRQHandler(void)
 {
 	//STUB
-	if(__HAL_GPIO_EXTI_GET_FLAG(NRF_INT_Pin))
-	{
-		if(nrfsta==0)
-		{
-			if(NRF24L01_RxPacket(nrf_Rx_Buffer)==0)	 //如果接收到数据
-			{
-				//printf("received\n");
-			}
-		}
-		else
-		{
-			TransCop=1;
-			//printf("tarnsed \r\n");
-			
-		}
-		
-		__HAL_GPIO_EXTI_CLEAR_FLAG(NRF_INT_Pin);
-		
-		
-	}
 	if(__HAL_GPIO_EXTI_GET_FLAG(MPU_INT_Pin))
 	{	
 		
 		newdata=1;
 		newdatacnt++;
 		__HAL_GPIO_EXTI_CLEAR_FLAG(MPU_INT_Pin);//clear flag
+
+	}
+	if(__HAL_GPIO_EXTI_GET_FLAG(SWICH_Pin))
+	{	
+		
+		__HAL_GPIO_EXTI_CLEAR_FLAG(SWICH_Pin);//clear flag
 
 	}
 		

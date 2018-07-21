@@ -29,6 +29,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "inv_mpu_dmp_motion_driver.h"
 #include "string.h"
 #include "I2C.h"
+#include "delay.h"
 //////////////////////////////////////////////////////////////////////////
 struct platform_data_s {
     signed char orientation[9];
@@ -38,5 +39,6 @@ void run_self_test(void);
 static unsigned short inv_row_2_scale(const signed char *row);
 unsigned short inv_orientation_matrix_to_scalar(const signed char *mtx);
 int MPU9250_Init(void);
-
+void MPU_enable(void);
+void MPU_disable(void);
 #endif
